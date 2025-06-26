@@ -1,1 +1,26 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+@theme{
+  /* Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray-100: #F2F2F2;
+  --color-gray-50: #FCFCFC;
+  --color-blue-950: #152938;
+  --color-blue-800: #304859;
+  --color-blue-400: #7191A5;
+  --color-blue-350: #6395B8;
+  --color-blue-300: #BCCED9;
+  --color-blue-100: #DFE7EC;
+  --color-orange-400: #FDA214;
+  --color-orange-300: #FFB84A;
+
+  /* Spacing */
+  --spacing-100: 0.5rem;
+  --spacing-200: 1rem;
+  --spacing-300: 1.5rem;
+  --spacing-400: 2rem;
+  --spacing-500: 2.5rem;
+  --spacing-600: 3rem;
+  --spacing-1000: 5rem;
+}

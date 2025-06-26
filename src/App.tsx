@@ -21,9 +21,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <>
+    <main className="flex h-screen w-screen items-center justify-center bg-blue-950 text-white">
       <RouterProvider router={router} />
-    </>
+    </main>
   );
 }
 

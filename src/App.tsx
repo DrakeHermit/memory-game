@@ -1,17 +1,16 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import GamePage from "./pages/GamePage";
+import LobbyPage from "./pages/LobbyPage";
+import { Header } from "./components/Header";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Lobby</div>,
+    element: <LobbyPage />,
   },
   {
     path: "/game",
-    element: <div>Game</div>,
-  },
-  {
-    path: "/endgame-stats",
-    element: <div>End Game Stats</div>,
+    element: <GamePage />,
   },
   {
     path: "*",
@@ -21,9 +20,12 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <main className="flex h-screen w-screen items-center justify-center bg-blue-950 text-white">
-      <RouterProvider router={router} />
-    </main>
+    <div className="flex flex-col bg-blue-950 h-screen items-center justify-center gap-1000 text-white">
+      <Header />
+      <main className="text-white">
+        <RouterProvider router={router} />
+      </main>
+    </div>
   );
 }
 

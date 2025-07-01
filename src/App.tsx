@@ -20,9 +20,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className="flex flex-col bg-blue-950 h-screen items-center justify-center gap-1000 text-white">
-      <Header />
-      <main className="text-white">
+    <div className="bg-blue-950 min-h-screen text-center pt-[5rem] md:pt-[7rem] text-white">
+      <div className="md:mb-1000 mb-600">
+        <Header />
+      </div>
+      <main className="text-white text-left max-w-[327px] mx-auto md:max-w-[654px]">
         <RouterProvider router={router} />
       </main>
     </div>

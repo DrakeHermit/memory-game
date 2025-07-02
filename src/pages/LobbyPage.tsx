@@ -1,32 +1,9 @@
-import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface FormData {
-  theme: "numbers" | "icons";
-  players: "1" | "2" | "3" | "4";
-  gridSize: "4x4" | "6x6";
-}
+import useLobbyStore from "../store/useLobbyStore";
 
 const LobbyPage: React.FC = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState<FormData>({
-    theme: "numbers",
-    players: "1",
-    gridSize: "4x4",
-  });
-
-  const handleStartGame = () => {
-    console.log("Starting game with:", formData);
-    navigate("/game", { state: formData });
-  };
-
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const { formData, setFormData, handleGameStart } = useLobbyStore();
 
   return (
     <div className="bg-white rounded-2xl p-[1.5rem] md:p-[3.5rem] shadow-2xl">
@@ -44,7 +21,7 @@ const LobbyPage: React.FC = () => {
                 id="numbers"
                 className="sr-only peer"
                 checked={formData.theme === "numbers"}
-                onChange={() => handleInputChange("theme", "numbers")}
+                onChange={() => setFormData("theme", "numbers")}
               />
               <label
                 htmlFor="numbers"
@@ -65,7 +42,7 @@ const LobbyPage: React.FC = () => {
                 id="icons"
                 className="sr-only peer"
                 checked={formData.theme === "icons"}
-                onChange={() => handleInputChange("theme", "icons")}
+                onChange={() => setFormData("theme", "icons")}
               />
               <label
                 htmlFor="icons"
@@ -81,7 +58,6 @@ const LobbyPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Player Count */}
         <section>
           <h2 className="text-blue-400 text-[20px] font-bold mb-4">
             Numbers of Players
@@ -96,7 +72,7 @@ const LobbyPage: React.FC = () => {
                   id={`players-${num}`}
                   className="sr-only peer"
                   checked={formData.players === num}
-                  onChange={() => handleInputChange("players", num)}
+                  onChange={() => setFormData("players", num)}
                 />
                 <label
                   htmlFor={`players-${num}`}
@@ -113,7 +89,6 @@ const LobbyPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Grid Size */}
         <section>
           <h2 className="text-blue-400 text-[20px] font-bold mb-4">
             Grid Size
@@ -127,7 +102,7 @@ const LobbyPage: React.FC = () => {
                 id="grid-4x4"
                 className="sr-only peer"
                 checked={formData.gridSize === "4x4"}
-                onChange={() => handleInputChange("gridSize", "4x4")}
+                onChange={() => setFormData("gridSize", "4x4")}
               />
               <label
                 htmlFor="grid-4x4"
@@ -148,7 +123,7 @@ const LobbyPage: React.FC = () => {
                 id="grid-6x6"
                 className="sr-only peer"
                 checked={formData.gridSize === "6x6"}
-                onChange={() => handleInputChange("gridSize", "6x6")}
+                onChange={() => setFormData("gridSize", "6x6")}
               />
               <label
                 htmlFor="grid-6x6"
@@ -164,10 +139,9 @@ const LobbyPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Start Button */}
         <button
           type="button"
-          onClick={handleStartGame}
+          onClick={() => handleGameStart(navigate)}
           className="w-full py-4 px-6 bg-orange-400 hover:bg-orange-300 text-[26px] text-white text-lg font-semibold rounded-full transition-colors cursor-pointer"
         >
           Start Game

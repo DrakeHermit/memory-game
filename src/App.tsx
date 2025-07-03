@@ -20,7 +20,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className="bg-blue-950 min-h-screen text-center pt-[5rem] md:pt-[7rem] text-white">
+    <div className="bg-blue-950 min-h-screen text-center pt-[5rem] md:pt-[7rem] text-white font-family-sans">
       <div className="md:mb-1000 mb-600">
         <Header />
       </div>

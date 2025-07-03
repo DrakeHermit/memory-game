@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@700&display=swap');
+}
+
 @theme{
   /* Colors */
   --color-white: #ffffff;
@@ -23,4 +28,7 @@
   --spacing-500: 2.5rem;
   --spacing-600: 3rem;
   --spacing-1000: 5rem;
+
+  /* Typography */
+  --font-family-sans: 'Atkinson Hyperlegible', sans-serif;
 }

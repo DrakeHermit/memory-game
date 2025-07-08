@@ -28,7 +28,6 @@ const useLobbyStore = create<LobbyStore>((set) => ({
     })),
   handleGameStart: (navigate) => {
     set((state) => {
-      console.log("Starting game with:", state.formData);
       navigate("/game", { state: state.formData });
       return state;
     });

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useNavigate } from "react-router-dom";
+import { persist } from "zustand/middleware";
 
 interface FormData {
   theme: "numbers" | "icons";
@@ -13,25 +14,26 @@ interface LobbyStore {
   handleGameStart: (navigate: ReturnType<typeof useNavigate>) => void;
 }
 
-const useLobbyStore = create<LobbyStore>((set) => ({
-  formData: {
-    theme: "numbers",
-    players: "1",
-    gridSize: "4x4",
-  },
-  setFormData: (field, value) =>
-    set((state) => ({
+const useLobbyStore = create<LobbyStore>()(
+  persist(
+    (set) => ({
       formData: {
-        ...state.formData,
-        [field]: value,
+        theme: "numbers",
+        players: "1",
+        gridSize: "4x4",
       },
-    })),
-  handleGameStart: (navigate) => {
-    set((state) => {
-      navigate("/game", { state: state.formData });
-      return state;
-    });
-  },
-}));
+      setFormData: (field, value) =>
+        set((state) => ({
+          formData: { ...state.formData, [field]: value },
+        })),
+      handleGameStart: (navigate) => {
+        navigate("/game");
+      },
+    }),
+    {
+      name: "lobby-storage",
+    }
+  )
+);
 
 export default useLobbyStore;

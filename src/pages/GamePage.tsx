@@ -1,5 +1,6 @@
 import { GameBoard } from "../components/GameBoard";
 import { NavBar } from "../components/NavBar";
+import { TimeComponent } from "../components/TimeComponent";
 import useLobbyStore from "../store/useLobbyStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 
@@ -35,10 +36,8 @@ const GamePage = () => {
             size === 4 && "md:mt-[100px]"
           } md:mt-[100px] lg:mt-[106px] mt-[125px] gap-200 md:gap-400`}
         >
-          <div className="flex flex-col justify-between items-center bg-blue-100 py-200 px-[22.6px] text-blue-400 text-[18px] font-bold rounded-md">
-            Time <span className="text-[32px] text-blue-800">0:01</span>
-          </div>
-          <div className="flex flex-col justify-between items-center bg-blue-100 py-200 px-[22.6px] text-blue-400 text-[18px] font-bold rounded-md">
+          <TimeComponent />
+          <div className="flex flex-col md:flex-row justify-between items-center bg-blue-100 py-200 px-[22.6px] text-blue-400 text-[18px] font-bold rounded-md">
             Moves <span className="text-[32px] text-blue-800">0</span>
           </div>
         </div>

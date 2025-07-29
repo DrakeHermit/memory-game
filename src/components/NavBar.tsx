@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import GameStateStore from "../store/gameStateStore";
 
 export const NavBar = () => {
+  const { resetGameState } = GameStateStore();
+
   return (
     <nav className="flex justify-between items-center max-w-[327px] md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[37px] mx-auto">
       <div>
@@ -32,6 +35,7 @@ export const NavBar = () => {
             to="/"
             className="bg-blue-100 rounded-full py-[13px] px-[28px] text-blue-800 font-bold cursor-pointer"
             type="button"
+            onClick={resetGameState}
           >
             New Game
           </Link>

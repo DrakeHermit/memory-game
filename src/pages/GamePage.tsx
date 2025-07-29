@@ -1,7 +1,9 @@
+import { useMemo, useEffect } from "react";
 import { GameBoard } from "../components/GameBoard";
 import { NavBar } from "../components/NavBar";
 import { TimeComponent } from "../components/TimeComponent";
 import useLobbyStore from "../store/useLobbyStore";
+import gameStateStore from "../store/gameStateStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 
 interface gridClasses {
@@ -10,13 +12,20 @@ interface gridClasses {
 
 const GamePage = () => {
   const { formData } = useLobbyStore();
+  const { moves, setCoins } = gameStateStore();
   const size = getGridSize(formData.gridSize);
-  const coins = generateGrid(formData.gridSize);
+  const coins = useMemo(() => generateGrid(formData.gridSize), [
+    formData.gridSize,
+  ]);
 
   const gridClasses: gridClasses = {
     4: "grid-cols-4",
     6: "grid-cols-6",
   };
+
+  useEffect(() => {
+    setCoins(coins);
+  }, [coins, setCoins]);
 
   return (
     <div className="bg-white">
@@ -27,7 +36,7 @@ const GamePage = () => {
         } ${gridClasses[size]} mt-1000 md:mt-[8.5rem] lg:mt-[6.2rem]`}
       >
         {coins.map((coin) => (
-          <GameBoard key={coin.id} />
+          <GameBoard coin={coin} key={coin.id} />
         ))}
       </div>
       <div>
@@ -38,7 +47,7 @@ const GamePage = () => {
         >
           <TimeComponent />
           <div className="flex flex-col md:flex-row justify-between items-center bg-blue-100 py-200 px-[22.6px] text-blue-400 text-[18px] font-bold rounded-md">
-            Moves <span className="text-[32px] text-blue-800">0</span>
+            Moves <span className="text-[32px] text-blue-800">{moves}</span>
           </div>
         </div>
       </div>

@@ -1,15 +1,22 @@
+import type { Coin } from '../types/game';
+
 export const getGridSize = (gridSize: string): number => {
   return parseInt(gridSize.split('x')[0]);
 }
 
-export const generateGrid = (gridSize: string) => {
+export const generateGrid = (gridSize: string): Coin[] => {
   const size = getGridSize(gridSize);
   const totalCoins = size * size;
   
-  return Array.from({ length: totalCoins }, (_, index) => ({
-    id: index,
+  const coins = Array.from({ length: totalCoins }, (_, index) => ({
+    id: `coin-${index}`,
     value: Math.floor(index / 2), 
-    isFlipped: false,
-    isMatched: false
+  }));
+
+  const shuffled = coins.sort(() => Math.random() - 0.5);
+  
+  return shuffled.map((coin, index) => ({
+    ...coin,
+    id: index  
   }));
 }

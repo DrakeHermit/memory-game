@@ -8,7 +8,7 @@ const LobbyPage: React.FC = () => {
 
   return (
     <div className="bg-blue-950 min-h-screen text-center pt-[5rem] md:pt-[7rem] text-white">
-      <div className="md:mb-1000 mb-600 text-center">
+      <div className="md:mb-700 mb-600 text-center">
         <Header />
       </div>
       <main className="text-white text-left max-w-[327px] mx-auto md:max-w-[654px]">

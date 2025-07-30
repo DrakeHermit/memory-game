@@ -4,19 +4,21 @@ export const getGridSize = (gridSize: string): number => {
   return parseInt(gridSize.split('x')[0]);
 }
 
-export const generateGrid = (gridSize: string): Coin[] => {
+export const generateGrid = (gridSize: string, theme: 'numbers' | 'icons'): Coin[] => {
   const size = getGridSize(gridSize);
   const totalCoins = size * size;
+  const maxIcons = 10; 
   
-  const coins = Array.from({ length: totalCoins }, (_, index) => ({
-    id: `coin-${index}`,
-    value: Math.floor(index / 2), 
-  }));
+  const coins = Array.from({ length: totalCoins }, (_, index) => {
+    const pairIndex = Math.floor(index / 2);
+    
+    return {
+      id: index,
+      value: theme === 'numbers' 
+        ? pairIndex 
+        : `icon-${pairIndex % maxIcons}`,
+    };
+  });
 
-  const shuffled = coins.sort(() => Math.random() - 0.5);
-  
-  return shuffled.map((coin, index) => ({
-    ...coin,
-    id: index  
-  }));
+  return coins.sort(() => Math.random() - 0.5);
 }

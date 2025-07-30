@@ -26,6 +26,7 @@ export const NavBar = () => {
         </div>
         <div className="hidden md:flex gap-200 md:text-[20px]">
           <button
+            onClick={resetGameState}
             className="bg-orange-400 rounded-full py-[13px] px-[28px] text-white font-bold cursor-pointer"
             type="button"
           >

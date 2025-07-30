@@ -1,4 +1,4 @@
 export interface Coin {
   id: number;
-  value: number;
+  value: number | string;
 }

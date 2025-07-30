@@ -1,22 +1,18 @@
 import { create } from "zustand";
-
-interface Coin {
-  id: number;
-  value: number;
-}
+import type { Coin } from "../types/game";
 
 interface GameStateStore {
-  gameStarted: boolean;
   gamePhase: 'waitingForTurn' | 'firstCoinFlipped' | 'matchingCoins' | 'clearingCoins' | 'gameOver';
   flippedCoins: number[];
   coins: Coin[];
   moves: number;
+  gameTimer: string;
   matchedPairs: number[];
   currentTurn: string;
-  setGameStarted: (started: boolean) => void;
   resetGameState: () => void;
   flipCoin: (coinId: number) => void;
   setCoins: (coins: Coin[]) => void; 
+  setGameTimer: (time: string) => void;
 }
 
 const GameStateStore = create<GameStateStore>((set) => ({
@@ -25,18 +21,19 @@ const GameStateStore = create<GameStateStore>((set) => ({
   flippedCoins: [],
   coins: [],
   moves: 0,
+  gameTimer: '',
   matchedPairs: [],
   currentTurn: 'player1',
-  setGameStarted: (started: boolean) => set({ gameStarted: started }),
-  resetGameState: () => set({ gameStarted: false, flippedCoins: [], matchedPairs: [], currentTurn: 'player1', gamePhase: 'waitingForTurn', moves: 0, coins: [] }),
-  setCoins: (coins: Coin[]) => set({ coins }), 
+  resetGameState: () => set({ flippedCoins: [], matchedPairs: [], currentTurn: 'player1', gamePhase: 'waitingForTurn', moves: 0, gameTimer: '00:00' }),
+  setCoins: (coins: Coin[]) => set({ coins }),
+  setGameTimer: (time: string) => set({ gameTimer: time }),
   flipCoin: (coinId: number) => set((state) => {
     if (state.gamePhase !== 'waitingForTurn' && state.gamePhase !== 'firstCoinFlipped') {
       return state; 
     }
     
     if (state.gamePhase === 'waitingForTurn') {
-      return { ...state, flippedCoins: [coinId], gamePhase: 'firstCoinFlipped', moves: state.moves + 1 };
+      return { ...state, flippedCoins: [coinId], gamePhase: 'firstCoinFlipped', moves: state.moves + 1, gameStarted: true };
     }
     
     if (state.gamePhase === 'firstCoinFlipped') {
@@ -47,16 +44,28 @@ const GameStateStore = create<GameStateStore>((set) => ({
       const isMatch = coin1?.value === coin2?.value; 
     
       if (isMatch) {
-        if (coin1 && coin2) {
-          return { 
-            ...state, 
-            flippedCoins: [],
-            matchedPairs: [...state.matchedPairs, coin1.id, coin2.id], 
-            gamePhase: 'waitingForTurn',
-            moves: state.moves + 1,
-          };
-        };
-      } else {
+  if (coin1 && coin2) {
+    const newMatchedPairs = [...state.matchedPairs, coin1.id, coin2.id];
+    
+    if (state.coins.length === newMatchedPairs.length) {
+      return { 
+        ...state, 
+        flippedCoins: [],
+        matchedPairs: newMatchedPairs,
+        gamePhase: 'gameOver',
+        moves: state.moves + 1
+      };
+    }
+    
+    return { 
+      ...state, 
+      flippedCoins: [],
+      matchedPairs: newMatchedPairs,
+      gamePhase: 'waitingForTurn',
+      moves: state.moves + 1
+    };
+  }
+} else {
         if (coin1 && coin2) {
           setTimeout(() => {
             set((state) => ({
@@ -75,7 +84,7 @@ const GameStateStore = create<GameStateStore>((set) => ({
       }
       }
     }
-  
+ 
     return state;
   }),
 }));

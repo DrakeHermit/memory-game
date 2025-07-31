@@ -16,7 +16,7 @@ export const ResultsModal = () => {
         </p>
         <div className="flex justify-between items-center bg-blue-100 py-200 px-[12px] md:py-200 md:px-[32px] rounded-sm mb-200">
           <p className="text-blue-400 text-[14px] md:text-[18px] font-bold">
-            Time Elapsed{" "}
+            Time Elapsed
           </p>
           <p className="text-blue-800 text-[20px] md:text-[32px] font-bold">
             {gameTimer}
@@ -24,7 +24,7 @@ export const ResultsModal = () => {
         </div>
         <div className="flex justify-between items-center bg-blue-100 py-200 px-[12px] md:py-200 md:px-[32px] rounded-sm mb-500">
           <p className="text-blue-400 text-[14px] md:text-[18px] font-bold">
-            Moves Taken{" "}
+            Moves Taken
           </p>
           <p className="text-blue-800 text-[20px] md:text-[32px] font-bold">
             {moves}
@@ -40,7 +40,10 @@ export const ResultsModal = () => {
           <button
             className="bg-blue-100 text-[18px] md:text-[20px] rounded-full w-full md:w-1/2 md:py-[13px] py-[12px] md:px-[28px] text-blue-800 font-bold cursor-pointer"
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              navigate("/");
+              resetGameState();
+            }}
           >
             Setup New Game
           </button>

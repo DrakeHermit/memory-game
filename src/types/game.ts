@@ -6,5 +6,6 @@ export interface Coin {
 export interface User {
   id: string
   score: number
+  moves: number
   isCurrentTurn: boolean
 }

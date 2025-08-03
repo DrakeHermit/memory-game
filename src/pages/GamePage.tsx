@@ -4,6 +4,7 @@ import { NavBar } from "../components/NavBar";
 import { TimeComponent } from "../components/TimeComponent";
 import useLobbyStore from "../store/useLobbyStore";
 import gameStateStore from "../store/gameStateStore";
+import { useUserStore } from "../store/userStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 import { ResultsModal } from "../components/ResultsModal";
 
@@ -14,11 +15,21 @@ interface gridClasses {
 const GamePage = () => {
   const { formData } = useLobbyStore();
   const { moves, setCoins, gamePhase } = gameStateStore();
+  const { setCurrentUser, currentUser } = useUserStore();
   const size = getGridSize(formData.gridSize);
   const coins = useMemo(() => generateGrid(formData.gridSize, formData.theme), [
     formData.gridSize,
     formData.theme,
   ]);
+
+  useEffect(() => {
+    setCurrentUser({
+      id: "player1",
+      score: 0,
+      moves: 0,
+      isCurrentTurn: true,
+    });
+  }, [setCurrentUser]);
 
   const gridClasses: gridClasses = {
     4: "grid-cols-4",
@@ -43,7 +54,8 @@ const GamePage = () => {
             <GameBoard coin={coin} key={coin.id} />
           ))}
         </div>
-        <div>
+
+        {formData.players === "1" ? (
           <div
             className={`grid grid-cols-2 place-self-center min-w-[326px] md:min-w-[542px] ${
               size === 4 && "md:mt-[100px]"
@@ -54,7 +66,11 @@ const GamePage = () => {
               Moves <span className="text-[32px] text-blue-800">{moves}</span>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-between items-center max-w-[327px] md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto">
+            {currentUser.id}
+          </div>
+        )}
       </div>
     </>
   );

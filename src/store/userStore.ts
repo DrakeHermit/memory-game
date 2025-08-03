@@ -14,6 +14,7 @@ export const useUserStore = create<UserStore>((set) => ({
   currentUser: {
     id: 'player1',
     score: 0,
+    moves: 0,
     isCurrentTurn: true,
   },
   connectedPlayers: [],

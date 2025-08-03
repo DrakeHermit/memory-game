@@ -9,6 +9,7 @@ interface GameStateStore {
   gameTimer: string;
   matchedPairs: number[];
   currentTurn: string;
+  restartCounter: number;
   resetGameState: () => void;
   flipCoin: (coinId: number) => void;
   setCoins: (coins: Coin[]) => void; 
@@ -24,7 +25,16 @@ const GameStateStore = create<GameStateStore>((set) => ({
   gameTimer: '',
   matchedPairs: [],
   currentTurn: 'player1',
-  resetGameState: () => set({ flippedCoins: [], matchedPairs: [], currentTurn: 'player1', gamePhase: 'waitingForTurn', moves: 0, gameTimer: '00:00' }),
+  restartCounter: 0,
+  resetGameState: () => set((state) => ({ 
+    flippedCoins: [], 
+    matchedPairs: [], 
+    currentTurn: 'player1', 
+    gamePhase: 'waitingForTurn', 
+    moves: 0, 
+    gameTimer: '00:00',
+    restartCounter: state.restartCounter + 1
+  })),
   setCoins: (coins: Coin[]) => set({ coins }),
   setGameTimer: (time: string) => set({ gameTimer: time }),
   flipCoin: (coinId: number) => set((state) => {

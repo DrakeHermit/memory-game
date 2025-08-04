@@ -7,6 +7,8 @@ import gameStateStore from "../store/gameStateStore";
 import { useUserStore } from "../store/userStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 import { ResultsModal } from "../components/ResultsModal";
+import { generateUsers } from "../utils/gameUtils";
+import { MultiplayerFooter } from "../components/MultiplayerFooter";
 
 interface gridClasses {
   [key: number]: string;
@@ -15,21 +17,15 @@ interface gridClasses {
 const GamePage = () => {
   const { formData } = useLobbyStore();
   const { moves, setCoins, gamePhase } = gameStateStore();
-  const { setCurrentUser, currentUser } = useUserStore();
+  // const { setCurrentUser, currentUser } = useUserStore();
   const size = getGridSize(formData.gridSize);
   const coins = useMemo(() => generateGrid(formData.gridSize, formData.theme), [
     formData.gridSize,
     formData.theme,
   ]);
-
-  useEffect(() => {
-    setCurrentUser({
-      id: "player1",
-      score: 0,
-      moves: 0,
-      isCurrentTurn: true,
-    });
-  }, [setCurrentUser]);
+  const users = useMemo(() => generateUsers(formData.players), [
+    formData.players,
+  ]);
 
   const gridClasses: gridClasses = {
     4: "grid-cols-4",
@@ -67,8 +63,14 @@ const GamePage = () => {
             </div>
           </div>
         ) : (
-          <div className="flex justify-between items-center max-w-[327px] md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto">
-            {currentUser.id}
+          <div className="grid grid-cols-4 max-w-[327px] gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto">
+            {users.map((user) => (
+              <MultiplayerFooter
+                key={user.id}
+                id={user.id}
+                moves={user.moves}
+              />
+            ))}
           </div>
         )}
       </div>

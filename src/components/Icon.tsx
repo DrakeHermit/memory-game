@@ -20,7 +20,7 @@ export const Icon = ({ iconName }: IconProps) => {
     <img
       src={iconMap[iconName]}
       alt="game icon"
-      className="w-[35px] h-[35px] md:w-[56px] md:h-[56px]"
+      className="w-[30px] h-[30px] md:w-[46px] md:h-[46px]"
       onError={() => console.log("Failed to load:", iconMap[iconName])}
     />
   );

@@ -34,7 +34,7 @@ export const GameBoard = ({ coin }: GameBoardProps) => {
     >
       {isFlipped || isMatched ? (
         formData.theme === "numbers" ? (
-          coin.value
+          <p className="text-[28px] md:text-[50px]">{coin.value}</p>
         ) : (
           <Icon iconName={coin.value.toString()} />
         )

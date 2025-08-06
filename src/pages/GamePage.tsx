@@ -4,7 +4,7 @@ import { NavBar } from "../components/NavBar";
 import { TimeComponent } from "../components/TimeComponent";
 import useLobbyStore from "../store/useLobbyStore";
 import gameStateStore from "../store/gameStateStore";
-import { useUserStore } from "../store/userStore";
+// import { useUserStore } from "../store/userStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 import { ResultsModal } from "../components/ResultsModal";
 import { generateUsers } from "../utils/gameUtils";
@@ -63,12 +63,18 @@ const GamePage = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-4 max-w-[327px] gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto">
+          <div className="flex justify-center gap-200 md:gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto px-400">
             {users.map((user) => (
               <MultiplayerFooter
                 key={user.id}
                 id={user.id}
                 moves={user.moves}
+                playerCount={formData.players}
+                className={
+                  formData.players === "2"
+                    ? "w-full md:w-[271px]"
+                    : "w-full md:w-[542px]"
+                }
               />
             ))}
           </div>

@@ -4,7 +4,7 @@ import { NavBar } from "../components/NavBar";
 import { TimeComponent } from "../components/TimeComponent";
 import useLobbyStore from "../store/useLobbyStore";
 import gameStateStore from "../store/gameStateStore";
-// import { useUserStore } from "../store/userStore";
+import { useUserStore } from "../store/userStore";
 import { generateGrid, getGridSize } from "../utils/gameUtils";
 import { ResultsModal } from "../components/ResultsModal";
 import { generateUsers } from "../utils/gameUtils";
@@ -17,7 +17,7 @@ interface gridClasses {
 const GamePage = () => {
   const { formData } = useLobbyStore();
   const { moves, setCoins, gamePhase } = gameStateStore();
-  // const { setCurrentUser, currentUser } = useUserStore();
+  const { setConnectedPlayers, connectedPlayers } = useUserStore();
   const size = getGridSize(formData.gridSize);
   const coins = useMemo(() => generateGrid(formData.gridSize, formData.theme), [
     formData.gridSize,
@@ -35,6 +35,10 @@ const GamePage = () => {
   useEffect(() => {
     setCoins(coins);
   }, [coins, setCoins]);
+
+  useEffect(() => {
+    setConnectedPlayers(users);
+  }, [users, setConnectedPlayers]);
 
   return (
     <>
@@ -64,11 +68,11 @@ const GamePage = () => {
           </div>
         ) : (
           <div className="flex justify-center gap-200 md:gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[112px] lg:mt-[83px] mx-auto px-400">
-            {users.map((user) => (
+            {connectedPlayers.map((player) => (
               <MultiplayerFooter
-                key={user.id}
-                id={user.id}
-                moves={user.moves}
+                key={player.id}
+                id={player.id}
+                moves={player.moves}
                 playerCount={formData.players}
                 className={
                   formData.players === "2"

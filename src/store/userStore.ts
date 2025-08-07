@@ -3,11 +3,11 @@ import type { User } from '../types/game';
 
 interface UserStore {
   currentUser: User;
-  connectedPlayers: string[]
+  connectedPlayers: User[]
   roomId: string;
   connectionStatus: 'connected' | 'disconnected';
   setCurrentUser: (user: User) => void;
-  setConnectedPlayers: (players: string[]) => void;
+  setConnectedPlayers: (players: User[]) => void;
 }
 
 export const useUserStore = create<UserStore>((set) => ({
@@ -21,5 +21,5 @@ export const useUserStore = create<UserStore>((set) => ({
   roomId: '',
   connectionStatus: 'disconnected',
   setCurrentUser: (user: User) => set({ currentUser: user }),
-  setConnectedPlayers: (players: string[]) => set({ connectedPlayers: players }),
+  setConnectedPlayers: (players: User[]) => set({ connectedPlayers: players }),
 }));

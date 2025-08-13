@@ -1,4 +1,5 @@
 import type { Coin } from '../types/game';
+import type { User } from '../types/game';
 
 export const getGridSize = (gridSize: string): number => {
   return parseInt(gridSize.split('x')[0]);
@@ -23,8 +24,13 @@ export const generateGrid = (gridSize: string, theme: 'numbers' | 'icons'): Coin
   return coins.sort(() => Math.random() - 0.5);
 }
 
-export const generateUsers =(users: string): string[] => {
-  const usersArray = Array.from({ length: parseInt(users) }, (_, index) => `player${index + 1}`);
+export const generateUsers =(users: string): User[] => {
+  const usersArray = Array.from({ length: parseInt(users) }, (_, index) => ({
+    id: `player${index + 1}`,
+    score: 0,
+    moves: 0,
+    hasTurn: false,
+  }));
 
   return usersArray;
 }

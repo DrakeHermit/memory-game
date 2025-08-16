@@ -1,15 +1,35 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import GamePage from "./pages/GamePage";
-import LobbyPage from "./pages/LobbyPage";
+import LobbyLayout from "./layout/LobbyLayout";
+import MultiplayerContent from "./components/MultiplayerContent";
+import SinglePlayerContent from "./components/SinglePlayerContent";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LobbyPage />,
+    element: (
+      <LobbyLayout>
+        <SinglePlayerContent />
+      </LobbyLayout>
+    ),
+  },
+  {
+    path: "/multiplayer-lobby",
+    element: (
+      <LobbyLayout>
+        <MultiplayerContent />
+      </LobbyLayout>
+    ),
   },
   {
     path: "/game",
     element: <GamePage />,
+    children: [
+      {
+        path: "game/:gameId",
+        element: <GamePage />,
+      },
+    ],
   },
   {
     path: "*",

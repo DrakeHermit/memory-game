@@ -11,7 +11,10 @@ interface FormData {
 interface LobbyStore {
   formData: FormData;
   setFormData: (field: keyof FormData, value: string) => void;
-  handleGameStart: (navigate: ReturnType<typeof useNavigate>) => void;
+  handleGameStart: (
+    navigate: ReturnType<typeof useNavigate>,
+    multiplayer: boolean
+  ) => void;
 }
 
 const useLobbyStore = create<LobbyStore>()(
@@ -26,8 +29,12 @@ const useLobbyStore = create<LobbyStore>()(
         set((state) => ({
           formData: { ...state.formData, [field]: value },
         })),
-      handleGameStart: (navigate) => {
-        navigate("/game");
+      handleGameStart: (navigate, multiplayer) => {
+        if (multiplayer) {
+          navigate("/multiplayer-lobby");
+        } else {
+          navigate("/game");
+        }
       },
     }),
     {

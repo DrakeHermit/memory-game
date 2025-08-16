@@ -17,7 +17,7 @@ interface gridClasses {
 const GamePage = () => {
   const { formData } = useLobbyStore();
   const { moves, setCoins, gamePhase } = gameStateStore();
-  const { setConnectedPlayers, connectedPlayers } = useUserStore();
+  const { setConnectedPlayers } = useUserStore();
   const size = getGridSize(formData.gridSize);
   const coins = useMemo(() => generateGrid(formData.gridSize, formData.theme), [
     formData.gridSize,

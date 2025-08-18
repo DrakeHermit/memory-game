@@ -29,6 +29,22 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       set({ isConnected: true });
     });
 
+    socket.on('createRoom', ({ roomId }) => {
+      set({ roomId });
+    });
+
+    socket.on('roomCreated', (data: { roomId: string, room: string }) => {
+      set({ roomId: data.roomId, isConnected: true });
+    });
+
+    socket.on('roomError', (error: {message: string}) => {
+      console.error('Room error:', error.message);
+    });
+
+    socket.on('joinRoom', (roomId: string) => {
+      set({ roomId, isConnected: true });
+    });
+
     socket.on('disconnect', () => {
       console.log('Disconnected from backend server');
       set({ isConnected: false });

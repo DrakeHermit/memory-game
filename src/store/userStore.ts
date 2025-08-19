@@ -13,7 +13,7 @@ interface UserStore {
 
 export const useUserStore = create<UserStore>((set) => ({
   currentUser: {
-    id: 'player2',
+    id: '',
     score: 0,
     moves: 0,
     hasTurn: true,

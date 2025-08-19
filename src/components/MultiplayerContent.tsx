@@ -1,9 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import useLobbyStore from "../store/useLobbyStore";
+import { useSocketStore } from "../store/socketStore";
+import { useEffect } from "react";
 
 const MultiplayerContent = () => {
   const { formData } = useLobbyStore();
+  const { socket, isConnected, roomId, connect } = useSocketStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isConnected) {
+      connect();
+    }
+  }, [isConnected, connect]);
+
+  const handleCreateRoom = () => {
+    if (!socket || !isConnected) {
+      console.error("Socket not connected");
+      return;
+    }
+
+    const newRoomId = `room-${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+
+    if (roomId) {
+      console.log("Room already exists:", roomId);
+      return;
+    }
+
+    socket.emit("createRoom", {
+      roomId: newRoomId,
+      playerCount: formData.players,
+      theme: formData.theme,
+      gridSize: formData.gridSize,
+    });
+  };
+
+  useEffect(() => {
+    if (roomId) {
+      console.log("Room created:", roomId);
+    }
+  }, [roomId]);
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -27,7 +65,11 @@ const MultiplayerContent = () => {
 
       <div className="bg-gray-100 rounded-lg p-4 md:p-6 text-center">
         <div className="text-center">
-          <button className="w-full sm:w-auto bg-orange-400 text-white px-6 py-3 md:py-2 rounded-lg font-semibold hover:bg-orange-300 transition-colors text-sm md:text-base">
+          <button
+            onClick={handleCreateRoom}
+            className="w-full sm:w-auto bg-orange-400 text-white px-6 py-3 md:py-2 rounded-lg font-semibold hover:bg-orange-300 transition-colors text-sm md:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!isConnected || !!roomId}
+          >
             Create New Room
           </button>
         </div>
@@ -39,14 +81,17 @@ const MultiplayerContent = () => {
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
-              value="Room link will appear here"
+              value={
+                roomId
+                  ? `${window.location.origin}/join/${roomId}`
+                  : "Room link will appear here"
+              }
               readOnly
               className="flex-1 text-center text-sm text-blue-950 bg-white px-3 py-2 rounded border border-blue-300"
             />
             <button
-              onClick={() =>
-                navigator.clipboard.writeText("Room link will appear here")
-              }
+              onClick={() => navigator.clipboard.writeText(roomId || "")}
+              disabled={!roomId}
               className="w-full sm:w-auto bg-blue-800 text-white px-4 py-2 rounded font-semibold hover:bg-blue-950 transition-colors cursor-pointer text-sm md:text-base"
             >
               Copy

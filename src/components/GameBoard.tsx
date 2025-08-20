@@ -3,7 +3,6 @@ import gameStateStore from "../store/gameStateStore";
 import { getGridSize } from "../utils/gameUtils";
 import type { Coin } from "../types/game";
 import { Icon } from "./Icon";
-import { useUserStore } from "../store/userStore";
 
 interface GameBoardProps {
   coin: Coin;
@@ -13,13 +12,12 @@ export const GameBoard = ({ coin }: GameBoardProps) => {
   const { formData } = useLobbyStore();
   const { gamePhase, flipCoin, flippedCoins, matchedPairs } = gameStateStore();
   const size = getGridSize(formData.gridSize);
-  const { currentUser } = useUserStore();
   const isFlipped = flippedCoins.includes(coin.id);
   const isMatched = matchedPairs.includes(coin.id);
 
   return (
     <button
-      onClick={() => flipCoin(coin.id, currentUser.id)}
+      onClick={() => flipCoin(coin.id)}
       disabled={
         gamePhase !== "waitingForTurn" && gamePhase !== "firstCoinFlipped"
       }

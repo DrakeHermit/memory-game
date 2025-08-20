@@ -29,10 +29,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       set({ isConnected: true });
     });
 
-    socket.on('createRoom', ({ roomId }) => {
-      set({ roomId });
-    });
-
     socket.on('roomCreated', (data: { roomId: string, room: string }) => {
       set({ roomId: data.roomId, isConnected: true });
     });

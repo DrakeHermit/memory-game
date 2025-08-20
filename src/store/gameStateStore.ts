@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { Coin } from "../types/game";
-import { useUserStore } from "./userStore";
 
 interface GameStateStore {
   gamePhase: 'waitingForTurn' | 'firstCoinFlipped' | 'matchingCoins' | 'clearingCoins' | 'gameOver';
@@ -12,14 +11,13 @@ interface GameStateStore {
   currentTurn: string;
   restartCounter: number;
   resetGameState: () => void;
-  flipCoin: (coinId: number, currentPlayerId: string) => void;
+  flipCoin: (coinId: number) => void;
   setCoins: (coins: Coin[]) => void; 
   setGameTimer: (time: string) => void;
 }
 
 const GameStateStore = create<GameStateStore>((set) => {
-  const { updatePlayer } = useUserStore.getState();
-  
+ 
   return {
     gameStarted: false,
     gamePhase: 'waitingForTurn',
@@ -41,15 +39,11 @@ const GameStateStore = create<GameStateStore>((set) => {
     })),
     setCoins: (coins: Coin[]) => set({ coins }),
     setGameTimer: (time: string) => set({ gameTimer: time }),
-    flipCoin: (coinId: number, currentPlayerId: string) => set((state) => {
+    flipCoin: (coinId: number) => set((state) => {
       if (state.gamePhase !== 'waitingForTurn' && state.gamePhase !== 'firstCoinFlipped') {
         return state; 
       }
       
-      // Multiplayer logic
-      if (currentPlayerId) {
-        updatePlayer(currentPlayerId, { moves: state.moves + 1 });
-      }
       
       if (state.gamePhase === 'waitingForTurn') {
         return { ...state, flippedCoins: [coinId], gamePhase: 'firstCoinFlipped', moves: state.moves + 1, gameStarted: true };

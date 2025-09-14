@@ -31,7 +31,7 @@ const useLobbyStore = create<LobbyStore>()(
         })),
       handleGameStart: (navigate, multiplayer) => {
         if (multiplayer) {
-          navigate("/multiplayer-lobby");
+          navigate("/multiplayer-setup");
         } else {
           navigate("/game");
         }

@@ -1,8 +1,11 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import GamePage from "./pages/GamePage";
 import LobbyLayout from "./layout/LobbyLayout";
-import MultiplayerContent from "./components/MultiplayerContent";
+import MultiplayerSetup from "./components/MultiplayerSetup";
 import SinglePlayerContent from "./components/SinglePlayerContent";
+import LobbyPage from "./pages/LobbyPage";
+import { useEffect } from "react";
+import { useSocketStore } from "./store/socketStore";
 
 const router = createBrowserRouter([
   {
@@ -14,12 +17,16 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/multiplayer-lobby",
+    path: "/multiplayer-setup",
     element: (
       <LobbyLayout>
-        <MultiplayerContent />
+        <MultiplayerSetup />
       </LobbyLayout>
     ),
+  },
+  {
+    path: "/lobby/:roomId",
+    element: <LobbyPage />,
   },
   {
     path: "/game",
@@ -38,6 +45,13 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  const { connect, isConnected } = useSocketStore();
+
+  useEffect(() => {
+    if (!isConnected) {
+      connect();
+    }
+  }, [connect, isConnected]);
   return (
     <div className="font-family-sans">
       <RouterProvider router={router} />

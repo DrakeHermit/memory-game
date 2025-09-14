@@ -5,14 +5,8 @@ import { useEffect } from "react";
 
 const MultiplayerContent = () => {
   const { formData } = useLobbyStore();
-  const { socket, isConnected, roomId, connect } = useSocketStore();
+  const { socket, isConnected, roomId } = useSocketStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isConnected) {
-      connect();
-    }
-  }, [isConnected, connect]);
 
   const handleCreateRoom = () => {
     if (!socket || !isConnected) {
@@ -31,7 +25,7 @@ const MultiplayerContent = () => {
 
     socket.emit("createRoom", {
       roomId: newRoomId,
-      playerCount: formData.players,
+      maxPlayers: formData.players,
       theme: formData.theme,
       gridSize: formData.gridSize,
     });
@@ -100,19 +94,12 @@ const MultiplayerContent = () => {
         </div>
       </div>
 
-      <div className="space-y-3">
-        <h3 className="font-semibold text-blue-800 text-center md:text-left text-lg md:text-xl">
-          Players (0/{formData.players})
-        </h3>
-        <div className="space-y-2">
-          <div className="text-center text-blue-400 text-sm md:text-base py-4">
-            Waiting for players to join...
-          </div>
-        </div>
-      </div>
-
       <div className="flex flex-col sm:flex-row gap-3">
-        <button className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer">
+        <button
+          onClick={() => navigate(`/lobby/${roomId}`)}
+          disabled={!roomId}
+          className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Start Game
         </button>
         <button

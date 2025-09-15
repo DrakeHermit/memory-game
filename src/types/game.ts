@@ -5,6 +5,7 @@ export interface Coin {
 
 export interface Player {
   id: string;
+  name: string;
   score: number;
   moves: number;
   hasTurn: boolean;

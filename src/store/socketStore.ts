@@ -11,6 +11,7 @@ interface SocketStore {
   players: Player[];
   connect: () => void;
   disconnect: () => void; 
+  createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
   joinRoom: (roomId: string, playerName: string) => void;
 }
 
@@ -63,6 +64,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerJoined', (data) => {
+      
       set((state) => ({
         ...state,
         currentPlayers: data.currentPlayers,
@@ -88,6 +90,13 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     set({ socket });
   },
+  createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('createRoom', { roomId, maxPlayers, theme, gridSize, playerName });
+    }
+  },
+
   joinRoom: (roomId: string, playerName: string) => {
     const { socket } = get();
     if (socket) {

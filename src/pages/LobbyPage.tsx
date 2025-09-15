@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useLobbyStore from "../store/useLobbyStore";
 import { Header } from "../components/Header";
@@ -15,7 +15,8 @@ const LobbyPage = () => {
     joinRoom,
     players,
   } = useSocketStore();
-
+  const copyUrl = `${window.location.origin}/lobby/${roomId}`;
+  const [playerName, setPlayerName] = useState("");
   const isJoiningViaLink = roomId !== storeRoomId && !isRoomCreator;
 
   useEffect(() => {
@@ -78,16 +79,12 @@ const LobbyPage = () => {
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
-                  value={
-                    roomId
-                      ? `${window.location.origin}/join/${roomId}`
-                      : "Room link will appear here"
-                  }
+                  value={roomId ? copyUrl : "Room link will appear here"}
                   readOnly
                   className="flex-1 text-center text-sm text-blue-950 bg-white px-3 py-2 rounded border border-blue-300"
                 />
                 <button
-                  onClick={() => navigator.clipboard.writeText(roomId || "")}
+                  onClick={() => navigator.clipboard.writeText(copyUrl || "")}
                   disabled={!roomId}
                   className="w-full sm:w-auto bg-blue-800 text-white px-4 py-2 rounded font-semibold hover:bg-blue-950 transition-colors cursor-pointer text-sm md:text-base"
                 >
@@ -98,14 +95,34 @@ const LobbyPage = () => {
           )}
 
           <div className="mt-4">
-            <h3 className="font-semibold text-blue-800 text-center md:text-left text-lg md:text-xl">
+            {isJoiningViaLink && (
+              <div className="bg-gray-100 rounded-lg p-4 md:p-6 text-center">
+                <div className="mb-4">
+                  <label
+                    htmlFor="playerName"
+                    className="block text-sm font-medium text-blue-800 mb-2"
+                  >
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    id="playerName"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="w-full px-3 py-2 border text-blue-950 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            )}
+            <h3 className="font-semibold mt-4 text-blue-800 text-center md:text-left text-lg md:text-xl">
               Players ({players.length}/{formData.players})
             </h3>
             <div className="space-y-2">
               <div className="text-center text-blue-400 text-sm md:text-base py-4">
                 {players.length === 0
                   ? "Waiting for players to join..."
-                  : players.map((player) => player.id).join(", ")}
+                  : players.map((player) => player.name).join(", ")}
               </div>
             </div>
           </div>

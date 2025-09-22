@@ -13,6 +13,8 @@ interface SocketStore {
   disconnect: () => void; 
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
   joinRoom: (roomId: string, playerName: string) => void;
+  changeName: (roomId: string, playerName: string) => void;
+  toggleReady: (roomId: string) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -34,7 +36,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   players: [],
   connect: () => {
     if (get().socket?.connected) {
-    console.log('Socket already connected, skipping...');
     return; 
   }
 
@@ -44,7 +45,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('connect', () => {
-      console.log('Connected to backend server');
       set({ isConnected: true });
     });
 
@@ -77,9 +77,19 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     socket.on('roomError', (error: {message: string}) => {
       console.error('Room error:', error.message);
     });
+
+    socket.on('playerNameChanged', (data: { playerId: string; newName: string }) => {
+      set((state) => ({
+        ...state,
+        players: state.players.map(player => 
+          player.id === data.playerId 
+            ? { ...player, name: data.newName }
+            : player
+        )
+      }));
+    });
     
     socket.on('disconnect', () => {
-      console.log('Disconnected from backend server');
       set({ isConnected: false });
     });
 
@@ -101,6 +111,20 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.emit('joinRoom', { roomId, playerName });
+    }
+  },
+
+  changeName: (roomId: string, newName: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('changePlayerName', { roomId, newName });
+    }
+  },
+
+  toggleReady: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('togglePlayerReady', { roomId });
     }
   },
 

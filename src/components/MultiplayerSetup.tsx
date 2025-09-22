@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useLobbyStore from "../store/useLobbyStore";
 import { useSocketStore } from "../store/socketStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const MultiplayerContent = () => {
   const { formData } = useLobbyStore();
@@ -39,12 +39,6 @@ const MultiplayerContent = () => {
       playerName.trim()
     );
   };
-
-  useEffect(() => {
-    if (roomId) {
-      console.log("Room created:", roomId);
-    }
-  }, [roomId]);
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -122,7 +116,7 @@ const MultiplayerContent = () => {
           disabled={!roomId}
           className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Start Game
+          Go to Lobby
         </button>
         <button
           onClick={() => {

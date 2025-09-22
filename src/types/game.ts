@@ -9,6 +9,7 @@ export interface Player {
   score: number;
   moves: number;
   hasTurn: boolean;
+  ready: boolean;
 }
 
 export interface GameState {

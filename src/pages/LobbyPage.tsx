@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { HiUsers } from "react-icons/hi2";
 import useLobbyStore from "../store/useLobbyStore";
 import { Header } from "../components/Header";
 import { useSocketStore } from "../store/socketStore";
@@ -14,6 +15,8 @@ const LobbyPage = () => {
     roomId: storeRoomId,
     joinRoom,
     players,
+    changeName,
+    toggleReady,
   } = useSocketStore();
   const copyUrl = `${window.location.origin}/lobby/${roomId}`;
   const [playerName, setPlayerName] = useState("");
@@ -43,8 +46,8 @@ const LobbyPage = () => {
   }, [socket, roomId, isJoiningViaLink]);
 
   return (
-    <div className="bg-blue-950 min-h-screen text-center pt-[4.5rem] md:pt-[7rem] text-white">
-      <div className="md:mb-700 mb-600 text-center">
+    <div className="bg-blue-950 min-h-screen text-center pt-[0.5rem] md:pt-[7rem] text-white">
+      <div className="md:mb-700 mb-100 text-center">
         <Header />
       </div>
       <main className="text-white text-left max-w-[327px] mx-auto md:max-w-[654px]">
@@ -108,22 +111,98 @@ const LobbyPage = () => {
                     type="text"
                     id="playerName"
                     value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
+                    onChange={(e) => {
+                      console.log("Changing name to:", e.target.value);
+                      setPlayerName(e.target.value);
+                    }}
                     placeholder="Enter your name"
                     className="w-full px-3 py-2 border text-blue-950 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                   />
                 </div>
+                <div className="flex flex-row gap-4">
+                  <button
+                    onClick={() => changeName(roomId!, playerName)}
+                    className="bg-orange-400 w-1/2 text-blue-950 p-2 rounded font-semibold hover:bg-blue-950 hover:text-white transition-colors cursor-pointer text-sm md:text-base"
+                  >
+                    Change Name
+                  </button>
+                  <button
+                    onClick={() => toggleReady(roomId!)}
+                    className="bg-green-400 w-1/2 text-blue-950 p-2 rounded font-semibold hover:bg-blue-950 hover:text-white transition-colors cursor-pointer text-sm md:text-base"
+                  >
+                    Ready
+                  </button>
+                </div>
               </div>
             )}
-            <h3 className="font-semibold mt-4 text-blue-800 text-center md:text-left text-lg md:text-xl">
+            <h3 className="font-semibold mt-4 text-blue-800 text-center md:text-left text-md md:text-xl">
               Players ({players.length}/{formData.players})
             </h3>
-            <div className="space-y-2">
-              <div className="text-center text-blue-400 text-sm md:text-base py-4">
-                {players.length === 0
-                  ? "Waiting for players to join..."
-                  : players.map((player) => player.name).join(", ")}
-              </div>
+            <div className="space-y-3 mt-2 md:mt-6">
+              {players.length === 0 ? (
+                <div className="text-center text-blue-400 text-sm md:text-base py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <HiUsers className="text-4xl mb-3 mx-auto text-blue-300" />
+                  <p>Waiting for players to join...</p>
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {players.map((player, index) => {
+                    const isCurrentPlayerRoomCreator = index === 0; // First player is room creator
+                    return (
+                      <div
+                        key={player.id}
+                        className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            {player.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-blue-900 text-sm md:text-base">
+                              {player.name}
+                              {isCurrentPlayerRoomCreator && (
+                                <span className="ml-2 text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full font-medium">
+                                  Host
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-blue-600">
+                              Player {index + 1}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {isCurrentPlayerRoomCreator ? (
+                            <>
+                              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                              <span className="text-xs text-blue-600 font-medium">
+                                Host
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  player.ready ? "bg-green-400" : "bg-gray-400"
+                                }`}
+                              ></div>
+                              <span
+                                className={`text-xs font-medium ${
+                                  player.ready
+                                    ? "text-green-600"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {player.ready ? "Ready" : "Not Ready"}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
           {isRoomCreator && (

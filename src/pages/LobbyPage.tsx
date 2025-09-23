@@ -21,6 +21,10 @@ const LobbyPage = () => {
   const copyUrl = `${window.location.origin}/lobby/${roomId}`;
   const [playerName, setPlayerName] = useState("");
   const isJoiningViaLink = roomId !== storeRoomId && !isRoomCreator;
+  const isReady =
+    players.length === Number(formData.players) &&
+    players.length > 0 &&
+    players.slice(1).every((player) => player.ready);
 
   useEffect(() => {
     if (socket && roomId && isJoiningViaLink) {
@@ -208,7 +212,8 @@ const LobbyPage = () => {
           {isRoomCreator && (
             <button
               onClick={() => navigate(`/game/${roomId}`)}
-              className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer"
+              disabled={!isReady}
+              className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Start Game
             </button>

@@ -6,6 +6,7 @@ import SinglePlayerContent from "./components/SinglePlayerContent";
 import LobbyPage from "./pages/LobbyPage";
 import { useEffect } from "react";
 import { useSocketStore } from "./store/socketStore";
+import { MultiplayerGamePage } from "./pages/MultiplayerGamePage";
 
 const router = createBrowserRouter([
   {
@@ -31,12 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/game",
     element: <GamePage />,
-    children: [
-      {
-        path: "game/:gameId",
-        element: <GamePage />,
-      },
-    ],
+  },
+  {
+    path: "/game/:gameId",
+    element: <MultiplayerGamePage />,
   },
   {
     path: "*",

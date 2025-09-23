@@ -1,38 +1,32 @@
-import { useMemo, useEffect } from "react";
-import { GameBoard } from "../components/GameBoard";
+import { ResultsModal } from "../components/ResultsModal";
 import { NavBar } from "../components/NavBar";
+import { GameBoard } from "../components/GameBoard";
 import { TimeComponent } from "../components/TimeComponent";
+import { MultiplayerFooter } from "../components/MultiplayerFooter";
+import { useMemo } from "react";
+import { generateGrid, getGridSize } from "../utils/gameUtils";
 import useLobbyStore from "../store/useLobbyStore";
 import gameStateStore from "../store/gameStateStore";
-import { generateGrid, getGridSize } from "../utils/gameUtils";
-import { ResultsModal } from "../components/ResultsModal";
-import { generateUsers } from "../utils/gameUtils";
-import { MultiplayerFooter } from "../components/MultiplayerFooter";
+import { useSocketStore } from "../store/socketStore";
 
 interface gridClasses {
   [key: number]: string;
 }
 
-const GamePage = () => {
+export const MultiplayerGamePage = () => {
   const { formData } = useLobbyStore();
-  const { moves, setCoins, gamePhase } = gameStateStore();
+  const { moves, gamePhase } = gameStateStore();
+  const { players } = useSocketStore();
   const size = getGridSize(formData.gridSize);
   const coins = useMemo(() => generateGrid(formData.gridSize, formData.theme), [
     formData.gridSize,
     formData.theme,
-  ]);
-  const users = useMemo(() => generateUsers(formData.players), [
-    formData.players,
   ]);
 
   const gridClasses: gridClasses = {
     4: "grid-cols-4",
     6: "grid-cols-6",
   };
-
-  useEffect(() => {
-    setCoins(coins);
-  }, [coins, setCoins]);
 
   return (
     <>
@@ -62,11 +56,11 @@ const GamePage = () => {
         ) : (
           <div className="grid grid-cols-4 max-w-[327px] gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[80px] lg:mt-[83px] mx-auto">
             <div className="flex justify-center gap-200 md:gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 mx-auto">
-              {users.map((user) => (
+              {players.map((player) => (
                 <MultiplayerFooter
-                  key={user.id}
-                  id={user.id}
-                  moves={user.moves}
+                  key={player.id}
+                  id={player.name}
+                  moves={player.moves}
                   playerCount={formData.players}
                   className={
                     formData.players === "2"
@@ -82,5 +76,3 @@ const GamePage = () => {
     </>
   );
 };
-
-export default GamePage;

@@ -13,7 +13,7 @@ export interface Player {
 }
 
 export interface GameState {
-  gamePhase: 'waitingForTurn' | 'firstCoinFlipped' | 'matchingCoins' | 'clearingCoins' | 'gameOver';
+  gamePhase: 'waitingForTurn' | 'firstCoinFlipped' | 'matchingCoins';
   flippedCoins: number[];
   coins: Coin[];
   moves: number;
@@ -22,4 +22,11 @@ export interface GameState {
   currentTurn: string;
   restartCounter: number;
   players: Player[];
+}
+
+export interface GameStateMultiplayer {
+  flippedCoins: number[];
+  matchedPairs: number[];
+  coins: Coin[];
+  currentTurn: Player["id"];
 }

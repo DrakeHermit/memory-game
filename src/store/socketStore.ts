@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-import type { GameState, Player } from '../types/game';
+import type { GameStateMultiplayer, Player } from '../types/game';
 
 interface SocketStore {
   socket: Socket | null;
   isConnected: boolean;
   roomId: string;
-  gameState: GameState;
+  gameState: GameStateMultiplayer;
   isRoomCreator: boolean;
   players: Player[];
   connect: () => void;
@@ -22,15 +22,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   isConnected: false,
   roomId: '',
   gameState: {
-    gamePhase: 'waitingForTurn',
     flippedCoins: [],
-    coins: [],
-    moves: 0,
-    gameTimer: '',
     matchedPairs: [],
+    coins: [],
     currentTurn: '',
-    restartCounter: 0,
-    players: [],
   },
   isRoomCreator: false,
   players: [],

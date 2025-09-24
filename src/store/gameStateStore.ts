@@ -46,7 +46,7 @@ const GameStateStore = create<GameStateStore>((set) => {
       
       
       if (state.gamePhase === 'waitingForTurn') {
-        return { ...state, flippedCoins: [coinId], gamePhase: 'firstCoinFlipped', moves: state.moves + 1, gameStarted: true };
+        return { ...state, flippedCoins: [coinId], gamePhase: 'firstCoinFlipped', gameStarted: true };
       }
       
       if (state.gamePhase === 'firstCoinFlipped') {

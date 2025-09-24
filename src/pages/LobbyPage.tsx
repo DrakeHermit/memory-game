@@ -116,7 +116,6 @@ const LobbyPage = () => {
                     id="playerName"
                     value={playerName}
                     onChange={(e) => {
-                      console.log("Changing name to:", e.target.value);
                       setPlayerName(e.target.value);
                     }}
                     placeholder="Enter your name"
@@ -125,8 +124,9 @@ const LobbyPage = () => {
                 </div>
                 <div className="flex flex-row gap-4">
                   <button
+                    disabled={!playerName}
                     onClick={() => changeName(roomId!, playerName)}
-                    className="bg-orange-400 w-1/2 text-blue-950 p-2 rounded font-semibold hover:bg-blue-950 hover:text-white transition-colors cursor-pointer text-sm md:text-base"
+                    className="bg-orange-400 w-1/2 text-blue-950 p-2 rounded font-semibold hover:bg-blue-950 hover:text-white transition-colors cursor-pointer text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Change Name
                   </button>
@@ -151,7 +151,7 @@ const LobbyPage = () => {
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {players.map((player, index) => {
-                    const isCurrentPlayerRoomCreator = index === 0; // First player is room creator
+                    const isCurrentPlayerRoomCreator = index === 0;
                     return (
                       <div
                         key={player.id}
@@ -213,7 +213,7 @@ const LobbyPage = () => {
             <button
               onClick={() => navigate(`/game/${roomId}`)}
               disabled={!isReady}
-              className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Start Game
             </button>

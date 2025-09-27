@@ -41,22 +41,19 @@ export const MultiplayerGamePage = () => {
             <GameBoard coin={coin} key={coin.id} />
           ))}
         </div>
-        <div className="grid grid-cols-4 max-w-[327px] gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[80px] lg:mt-[83px] mx-auto">
-          <div className="flex justify-center gap-200 md:gap-400 md:max-w-[689px] lg:max-w-[1110px] mt-400 mx-auto">
-            {players.map((player) => (
-              <MultiplayerFooter
-                key={player.id}
-                id={player.name}
-                moves={player.moves}
-                playerCount={formData.players}
-                className={
-                  formData.players === "2"
-                    ? "w-full md:w-[271px]"
-                    : "w-full md:w-[542px]"
-                }
-              />
-            ))}
-          </div>
+        <div className="flex justify-center gap-200 md:gap-400 max-w-[327px] md:max-w-[689px] lg:max-w-[1110px] mt-400 md:mt-[80px] lg:mt-[83px] mx-auto">
+          {players.map((player) => (
+            <MultiplayerFooter
+              key={player.id}
+              id={player.name}
+              moves={player.moves}
+              className={
+                formData.players === "2"
+                  ? "w-full md:w-[271px]"
+                  : "w-full md:w-[542px]"
+              }
+            />
+          ))}
         </div>
       </div>
     </>

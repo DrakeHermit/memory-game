@@ -218,6 +218,15 @@ const LobbyPage = () => {
               Start Game
             </button>
           )}
+          {isJoiningViaLink && (
+            <button
+              onClick={() => navigate(`/game/${roomId}`)}
+              disabled={!isReady}
+              className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Join Game
+            </button>
+          )}
         </div>
       </main>
     </div>

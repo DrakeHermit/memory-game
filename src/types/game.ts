@@ -23,10 +23,3 @@ export interface GameState {
   restartCounter: number;
   players: Player[];
 }
-
-export interface GameStateMultiplayer {
-  flippedCoins: number[];
-  matchedPairs: number[];
-  coins: Coin[];
-  currentTurn: Player["id"];
-}

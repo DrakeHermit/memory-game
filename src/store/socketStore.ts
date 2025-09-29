@@ -1,12 +1,24 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-import type { GameStateMultiplayer, Player } from '../types/game';
+import type { Player } from '../types/game';
+
+interface ServerGameState {
+  roomId: string;
+  players: Player[];
+  gameStarted: boolean;
+  theme: string;
+  gridSize: number;
+  coins: Array<{
+    id: number;
+    value: number | string;
+  }>;
+}
 
 interface SocketStore {
   socket: Socket | null;
   isConnected: boolean;
   roomId: string;
-  gameState: GameStateMultiplayer;
+  gameState: ServerGameState | null;
   isRoomCreator: boolean;
   players: Player[];
   connect: () => void;
@@ -15,18 +27,14 @@ interface SocketStore {
   joinRoom: (roomId: string, playerName: string) => void;
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
+  startGame: (roomId: string) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   socket: null,
   isConnected: false,
   roomId: '',
-  gameState: {
-    flippedCoins: [],
-    matchedPairs: [],
-    coins: [],
-    currentTurn: '',
-  },
+  gameState: null,
   isRoomCreator: false,
   players: [],
   connect: () => {
@@ -96,6 +104,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     set({ socket });
   },
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => {
+    console.log('CreateRoom received:', { roomId, maxPlayers, theme, gridSize, playerName }); 
     const { socket } = get();
     if (socket) {
       socket.emit('createRoom', { roomId, maxPlayers, theme, gridSize, playerName });
@@ -120,6 +129,13 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.emit('togglePlayerReady', { roomId });
+    }
+  },
+  
+  startGame: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('startGame', { roomId });
     }
   },
 

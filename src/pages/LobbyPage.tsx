@@ -17,6 +17,7 @@ const LobbyPage = () => {
     players,
     changeName,
     toggleReady,
+    startGame,
   } = useSocketStore();
   const copyUrl = `${window.location.origin}/lobby/${roomId}`;
   const [playerName, setPlayerName] = useState("");
@@ -25,6 +26,35 @@ const LobbyPage = () => {
     players.length === Number(formData.players) &&
     players.length > 0 &&
     players.slice(1).every((player) => player.ready);
+
+  const handleStartGame = () => {
+    console.log("Start game clicked!", {
+      roomId,
+      isReady,
+      socketConnected: !!socket?.connected,
+    });
+    if (roomId) {
+      console.log("Calling startGame with roomId:", roomId);
+      startGame(roomId);
+    } else {
+      console.log("No roomId available");
+    }
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGameStarted = () => {
+      console.log("Game started! Redirecting to game page...");
+      navigate(`/game/${roomId}`);
+    };
+
+    socket.on("gameStarted", handleGameStarted);
+
+    return () => {
+      socket.off("gameStarted", handleGameStarted);
+    };
+  }, [socket, navigate, roomId]);
 
   useEffect(() => {
     if (socket && roomId && isJoiningViaLink) {
@@ -211,7 +241,7 @@ const LobbyPage = () => {
           </div>
           {isRoomCreator && (
             <button
-              onClick={() => navigate(`/game/${roomId}`)}
+              onClick={handleStartGame}
               disabled={!isReady}
               className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >

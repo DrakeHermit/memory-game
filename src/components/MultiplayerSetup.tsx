@@ -30,7 +30,7 @@ const MultiplayerContent = () => {
       return;
     }
 
-    const gridSizeNumber = formData.gridSize === "4x4" ? 16 : 36;
+    const gridSizeNumber = formData.gridSize === "4x4" ? 4 : 6;
     createRoom(
       newRoomId,
       formData.players,

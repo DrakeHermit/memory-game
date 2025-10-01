@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { HiUsers } from "react-icons/hi2";
 import useLobbyStore from "../store/useLobbyStore";
 import { Header } from "../components/Header";
 import { useSocketStore } from "../store/socketStore";
+import { useLobbyEffects } from "../hooks/useLobbyEffects";
 
 const LobbyPage = () => {
   const { roomId } = useParams();
   const { formData } = useLobbyStore();
-  const navigate = useNavigate();
   const {
     isRoomCreator,
     socket,
     roomId: storeRoomId,
-    joinRoom,
     players,
     changeName,
     toggleReady,
     startGame,
   } = useSocketStore();
+  const isJoiningViaLink = roomId !== storeRoomId && !isRoomCreator;
+  useLobbyEffects({ roomId, isJoiningViaLink, isRoomCreator });
   const copyUrl = `${window.location.origin}/lobby/${roomId}`;
   const [playerName, setPlayerName] = useState("");
-  const isJoiningViaLink = roomId !== storeRoomId && !isRoomCreator;
   const isReady =
     players.length === Number(formData.players) &&
     players.length > 0 &&
@@ -40,44 +40,6 @@ const LobbyPage = () => {
       console.log("No roomId available");
     }
   };
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleGameStarted = () => {
-      console.log("Game started! Redirecting to game page...");
-      navigate(`/game/${roomId}`);
-    };
-
-    socket.on("gameStarted", handleGameStarted);
-
-    return () => {
-      socket.off("gameStarted", handleGameStarted);
-    };
-  }, [socket, navigate, roomId]);
-
-  useEffect(() => {
-    if (socket && roomId && isJoiningViaLink) {
-      const defaultName = `Guest-${Math.random().toString(36).substr(2, 4)}`;
-      joinRoom(roomId, defaultName);
-    }
-  }, [socket, roomId, isJoiningViaLink, joinRoom]);
-
-  useEffect(() => {
-    if (socket && roomId && isRoomCreator) {
-      socket.emit("getGameState", { roomId });
-    }
-  }, [socket, roomId, isRoomCreator]);
-
-  useEffect(() => {
-    if (socket && roomId && isJoiningViaLink) {
-      const timer = setTimeout(() => {
-        socket.emit("getGameState", { roomId });
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [socket, roomId, isJoiningViaLink]);
 
   return (
     <div className="bg-blue-950 min-h-screen text-center pt-[0.5rem] md:pt-[7rem] text-white">
@@ -246,15 +208,6 @@ const LobbyPage = () => {
               className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Start Game
-            </button>
-          )}
-          {isJoiningViaLink && (
-            <button
-              onClick={() => navigate(`/game/${roomId}`)}
-              disabled={!isReady}
-              className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Join Game
             </button>
           )}
         </div>

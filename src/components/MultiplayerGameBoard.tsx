@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSocketStore } from "../store/socketStore";
 import { Icon } from "./Icon";
 
@@ -9,15 +10,16 @@ interface MultiplayerGameBoardProps {
 }
 
 export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
-  const { gameState } = useSocketStore();
+  const { gameState, flipCoin } = useSocketStore();
+  const [isFlipped, setIsFlipped] = useState<boolean>(false);
 
   const size = gameState?.gridSize || 4;
 
-  const isFlipped = false;
   const isMatched = false;
 
   const handleFlip = () => {
-    console.log("Multiplayer coin flip not implemented yet:", coin.id);
+    setIsFlipped((prev) => !prev);
+    flipCoin(coin.id);
   };
 
   return (

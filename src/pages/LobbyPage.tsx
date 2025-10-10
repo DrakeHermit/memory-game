@@ -11,7 +11,6 @@ const LobbyPage = () => {
   const { formData } = useLobbyStore();
   const {
     isRoomCreator,
-    socket,
     roomId: storeRoomId,
     players,
     changeName,
@@ -28,16 +27,8 @@ const LobbyPage = () => {
     players.slice(1).every((player) => player.ready);
 
   const handleStartGame = () => {
-    console.log("Start game clicked!", {
-      roomId,
-      isReady,
-      socketConnected: !!socket?.connected,
-    });
     if (roomId) {
-      console.log("Calling startGame with roomId:", roomId);
       startGame(roomId);
-    } else {
-      console.log("No roomId available");
     }
   };
 

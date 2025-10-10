@@ -28,6 +28,7 @@ interface SocketStore {
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
+  flipCoin: (coinId: number) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -41,7 +42,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     if (get().socket?.connected) {
     return; 
   }
-
     const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', {
       transports: ['websocket', 'polling'],
       autoConnect: true,
@@ -91,7 +91,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         )
       }));
     });
-    
+
     socket.on('disconnect', () => {
       set({ isConnected: false });
     });
@@ -104,41 +104,41 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     set({ socket });
   },
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => {
-    console.log('CreateRoom received:', { roomId, maxPlayers, theme, gridSize, playerName }); 
     const { socket } = get();
     if (socket) {
       socket.emit('createRoom', { roomId, maxPlayers, theme, gridSize, playerName });
     }
   },
-
   joinRoom: (roomId: string, playerName: string) => {
     const { socket } = get();
     if (socket) {
       socket.emit('joinRoom', { roomId, playerName });
     }
   },
-
   changeName: (roomId: string, newName: string) => {
     const { socket } = get();
     if (socket) {
       socket.emit('changePlayerName', { roomId, newName });
     }
   },
-
   toggleReady: (roomId: string) => {
     const { socket } = get();
     if (socket) {
       socket.emit('togglePlayerReady', { roomId });
     }
   },
-  
   startGame: (roomId: string) => {
     const { socket } = get();
     if (socket) {
       socket.emit('startGame', { roomId });
     }
   },
-
+  flipCoin: (coinId: number) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('flipCoin', { coinId });
+    }
+  },
   disconnect: () => {
     const { socket } = get();
     if (socket) {

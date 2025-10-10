@@ -17,7 +17,6 @@ export const useLobbyEffects = ({ roomId, isJoiningViaLink, isRoomCreator }: Use
     if (!socket) return; 
 
     const handleGameStarted = () => {
-      console.log("Game started! Redirecting to game page...");
       navigate(`/game/${roomId}`);
     }
     

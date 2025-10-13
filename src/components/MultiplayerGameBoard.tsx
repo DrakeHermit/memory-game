@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSocketStore } from "../store/socketStore";
 import { Icon } from "./Icon";
 
@@ -10,16 +9,26 @@ interface MultiplayerGameBoardProps {
 }
 
 export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
-  const { gameState, flipCoin } = useSocketStore();
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const { gameState, flipCoin, socket, roomId } = useSocketStore();
+  const myPlayer = gameState?.players.find((p) => p.id === socket?.id);
+  const isFlipped =
+    myPlayer?.hasTurn && (gameState?.flippedCoins ?? []).includes(coin.id);
+  const isMatched = (gameState?.matchedCoins ?? []).includes(coin.id);
 
   const size = gameState?.gridSize || 4;
 
-  const isMatched = false;
+  if (!myPlayer) return null;
 
   const handleFlip = () => {
-    setIsFlipped((prev) => !prev);
-    flipCoin(coin.id);
+    const myPlayer = gameState?.players.find((p) => p.id === socket?.id);
+    if (!myPlayer?.hasTurn) return;
+
+    if (!gameState) return;
+    if ((gameState?.flippedCoins ?? []).length >= 2) return;
+    if ((gameState?.flippedCoins ?? []).includes(coin.id)) return;
+    if ((gameState?.matchedCoins ?? []).includes(coin.id)) return;
+
+    flipCoin(coin.id, roomId);
   };
 
   return (

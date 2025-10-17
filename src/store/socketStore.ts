@@ -6,8 +6,6 @@ interface ServerGameState {
   roomId: string;
   players: Player[];
   gameStarted: boolean;
-  flippedCoins: number[];
-  matchedCoins: number[];
   theme: string;
   gridSize: number;
   coins: Array<{
@@ -20,8 +18,6 @@ interface SocketStore {
   socket: Socket | null;
   isConnected: boolean;
   roomId: string;
-  flippedCoins: number[];
-  matchedCoins: number[];
   gameState: ServerGameState | null;
   isRoomCreator: boolean;
   players: Player[];
@@ -32,15 +28,13 @@ interface SocketStore {
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
-  flipCoin: (coinId: number, roomId: string) => void;
+  flipCoin: (coinId: number) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   socket: null,
   isConnected: false,
   roomId: '',
-  flippedCoins: [],
-  matchedCoins: [],
   gameState: null,
   isRoomCreator: false,
   players: [],
@@ -68,9 +62,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     socket.on('gameState', (data) => {
     set({ 
       gameState: data.gameState,
-      players: data.gameState?.players || [],
-      matchedCoins: data.gameState?.matchedCoins || [],
-      flippedCoins: data.gameState?.flippedCoins || []
+      players: data.gameState?.players || []
       });
     });
 
@@ -141,10 +133,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       socket.emit('startGame', { roomId });
     }
   },
-  flipCoin: (coinId: number, roomId: string) => {
+  flipCoin: (coinId: number) => {
     const { socket } = get();
     if (socket) {
-      socket.emit('flipCoin', { coinId, roomId });
+      socket.emit('flipCoin', { coinId });
     }
   },
   disconnect: () => {

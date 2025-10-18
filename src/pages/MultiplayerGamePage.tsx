@@ -47,6 +47,7 @@ export const MultiplayerGamePage = () => {
                   ? "w-full md:w-[271px]"
                   : "w-full md:w-[542px]"
               }
+              hasTurn={player.hasTurn}
             />
           ))}
         </div>

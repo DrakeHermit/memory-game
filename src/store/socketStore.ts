@@ -6,6 +6,10 @@ interface ServerGameState {
   roomId: string;
   players: Player[];
   gameStarted: boolean;
+  playerId: string;
+  flippedCoins: number[];
+  matchedPairs: number[];
+  isProcessing: boolean;
   theme: string;
   gridSize: number;
   coins: Array<{
@@ -28,7 +32,7 @@ interface SocketStore {
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
-  flipCoin: (coinId: number) => void;
+  flipCoin: (coinId: number, roomId: string) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -133,10 +137,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       socket.emit('startGame', { roomId });
     }
   },
-  flipCoin: (coinId: number) => {
+  flipCoin: (coinId: number, roomId: string) => {
     const { socket } = get();
     if (socket) {
-      socket.emit('flipCoin', { coinId });
+      socket.emit('flipCoin', { coinId, roomId });
     }
   },
   disconnect: () => {

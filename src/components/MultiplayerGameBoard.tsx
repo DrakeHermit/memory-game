@@ -19,7 +19,7 @@ export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
 
   const handleFlip = () => {
     setIsFlipped((prev) => !prev);
-    flipCoin(coin.id);
+    flipCoin(coin.id, gameState?.roomId || "");
   };
 
   return (

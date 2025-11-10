@@ -10,21 +10,25 @@ interface MultiplayerGameBoardProps {
 }
 
 export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
-  const { gameState, flipCoin, players } = useSocketStore();
+  const { gameState, flipCoin, players, socket } = useSocketStore();
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const size = gameState?.gridSize || 4;
+
+  const currentPlayerId = socket?.id;
+  const playerWithTurn = players.find((player) => player.hasTurn === true);
+  const currentPlayerHasTurn = playerWithTurn?.id === currentPlayerId;
 
   const isMatched = false;
 
   const handleFlip = () => {
     setIsFlipped((prev) => !prev);
     flipCoin(coin.id, gameState?.roomId as string);
-    console.log(players);
   };
 
   return (
     <button
       onClick={handleFlip}
+      disabled={!currentPlayerHasTurn}
       className={`flex justify-center items-center fill-white rounded-full cursor-pointer disabled:cursor-auto text-white font-bold text-[44px] disabled:opacity-50 ${
         isFlipped || isMatched ? "bg-blue-300" : "bg-blue-800"
       } ${

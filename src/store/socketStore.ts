@@ -105,6 +105,18 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       set({ isConnected: false });
     });
 
+    socket.on('flipCoinsBack', (coinsToFlipBack: number[]) => {
+      // Remove the coins that need to be flipped back from flippedCoins array
+      set((state) => ({
+        gameState: state.gameState ? {
+          ...state.gameState,
+          flippedCoins: state.gameState.flippedCoins.filter(
+            coinId => !coinsToFlipBack.includes(coinId)
+          )
+        } : null
+      }));
+    });
+
     set({ socket });
   },
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => {
@@ -142,6 +154,9 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     if (socket) {
       socket.emit('flipCoin', { coinId, roomId });
     }
+    if (get().gameState?.flippedCoins.length === 2) { 
+      return
+     }
   },
   disconnect: () => {
     const { socket } = get();

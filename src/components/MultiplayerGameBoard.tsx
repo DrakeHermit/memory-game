@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo } from "react";
 import { useSocketStore } from "../store/socketStore";
 import { Icon } from "./Icon";
 
@@ -9,19 +9,17 @@ interface MultiplayerGameBoardProps {
   };
 }
 
-export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
+const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   const { gameState, flipCoin, players, socket } = useSocketStore();
-  const [isFlipped, setIsFlipped] = useState<boolean>(false);
+  const isFlipped = gameState?.flippedCoins.includes(coin.id);
+  const isMatched = gameState?.matchedPairs.includes(coin.id);
   const size = gameState?.gridSize || 4;
 
   const currentPlayerId = socket?.id;
   const playerWithTurn = players.find((player) => player.hasTurn === true);
   const currentPlayerHasTurn = playerWithTurn?.id === currentPlayerId;
 
-  const isMatched = false;
-
   const handleFlip = () => {
-    setIsFlipped((prev) => !prev);
     flipCoin(coin.id, gameState?.roomId as string);
   };
 
@@ -35,9 +33,7 @@ export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
         size === 4
           ? "w-[73px] h-[73px] md:w-[118px] md:h-[118px]"
           : "w-[46px] h-[46px] md:w-[82px] md:h-[82px]"
-      } ${isFlipped || isMatched ? "pointer-events-none" : ""} ${
-        isMatched ? "opacity-0 transition-opacity duration-800" : ""
-      }`}
+      } ${isFlipped || isMatched ? "pointer-events-none" : ""}`}
     >
       {isFlipped || isMatched ? (
         gameState?.theme === "numbers" ? (
@@ -51,3 +47,6 @@ export const MultiplayerGameBoard = ({ coin }: MultiplayerGameBoardProps) => {
     </button>
   );
 };
+
+// Memo wrapper to prevent unnecessary re-renders when props haven't changed
+export const MultiplayerGameBoard = memo(MultiplayerGameBoardComponent);

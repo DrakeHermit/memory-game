@@ -6,6 +6,7 @@ interface ServerGameState {
   roomId: string;
   players: Player[];
   gameStarted: boolean;
+  gameOver: boolean;
   playerId: string;
   flippedCoins: number[];
   matchedPairs: number[];
@@ -106,7 +107,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('flipCoinsBack', (coinsToFlipBack: number[]) => {
-      // Remove the coins that need to be flipped back from flippedCoins array
       set((state) => ({
         gameState: state.gameState ? {
           ...state.gameState,

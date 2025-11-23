@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { useSocketStore } from "../store/socketStore";
 import { Icon } from "./Icon";
+import MultiplayerResultModal from "./MultiplayerResultModal";
 
 interface MultiplayerGameBoardProps {
   coin: {
@@ -24,27 +25,32 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   };
 
   return (
-    <button
-      onClick={handleFlip}
-      disabled={!currentPlayerHasTurn}
-      className={`flex justify-center items-center fill-white rounded-full cursor-pointer disabled:cursor-auto text-white font-bold text-[44px] disabled:opacity-50 ${
-        isFlipped || isMatched ? "bg-blue-300" : "bg-blue-800"
-      } ${
-        size === 4
-          ? "w-[73px] h-[73px] md:w-[118px] md:h-[118px]"
-          : "w-[46px] h-[46px] md:w-[82px] md:h-[82px]"
-      } ${isFlipped || isMatched ? "pointer-events-none" : ""}`}
-    >
-      {isFlipped || isMatched ? (
-        gameState?.theme === "numbers" ? (
-          <p className="text-[28px] md:text-[50px]">{coin.value}</p>
-        ) : (
-          <Icon iconName={coin.value.toString()} />
-        )
-      ) : (
-        ""
+    <>
+      {gameState?.gameOver && (
+        <MultiplayerResultModal playerId={currentPlayerId!} players={players} />
       )}
-    </button>
+      <button
+        onClick={handleFlip}
+        disabled={!currentPlayerHasTurn}
+        className={`flex justify-center items-center fill-white rounded-full cursor-pointer disabled:cursor-auto text-white font-bold text-[44px] disabled:opacity-50 ${
+          isFlipped || isMatched ? "bg-blue-300" : "bg-blue-800"
+        } ${
+          size === 4
+            ? "w-[73px] h-[73px] md:w-[118px] md:h-[118px]"
+            : "w-[46px] h-[46px] md:w-[82px] md:h-[82px]"
+        } ${isFlipped || isMatched ? "pointer-events-none" : ""}`}
+      >
+        {isFlipped || isMatched ? (
+          gameState?.theme === "numbers" ? (
+            <p className="text-[28px] md:text-[50px]">{coin.value}</p>
+          ) : (
+            <Icon iconName={coin.value.toString()} />
+          )
+        ) : (
+          ""
+        )}
+      </button>
+    </>
   );
 };
 

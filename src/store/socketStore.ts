@@ -97,6 +97,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
 
+    socket.on('gameOver', (data: { winner: Player }) => {
+      set((state) => ({
+        ...state,
+        gameOver: true,
+        winner: data.winner
+      }));
+      console.log('Game over:', data);
+    });
+
     socket.on('disconnect', () => {
       set({ isConnected: false });
     });

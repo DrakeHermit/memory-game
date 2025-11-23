@@ -1,18 +1,18 @@
-import { ResultsModal } from "../components/ResultsModal";
 import { NavBar } from "../components/NavBar";
 import { MultiplayerFooter } from "../components/MultiplayerFooter";
 import useLobbyStore from "../store/useLobbyStore";
-import gameStateStore from "../store/gameStateStore";
 import { useSocketStore } from "../store/socketStore";
 import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
+import MultiplayerResultModal from "../components/MultiplayerResultModal";
 interface gridClasses {
   [key: number]: string;
 }
 
 export const MultiplayerGamePage = () => {
   const { formData } = useLobbyStore();
-  const { gamePhase } = gameStateStore();
-  const { players, gameState } = useSocketStore();
+  const { players, gameState, socket } = useSocketStore();
+
+  const currentPlayerId = socket?.id;
 
   const size = gameState?.gridSize || 4;
   const coins = gameState?.coins || [];
@@ -24,7 +24,9 @@ export const MultiplayerGamePage = () => {
 
   return (
     <>
-      {gamePhase === "gameOver" && <ResultsModal />}
+      {gameState?.gameOver && (
+        <MultiplayerResultModal playerId={currentPlayerId!} players={players} />
+      )}
       <div className="bg-white relative">
         <NavBar />
         <div

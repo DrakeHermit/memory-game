@@ -19,6 +19,9 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   const currentPlayerId = socket?.id;
   const playerWithTurn = players.find((player) => player.hasTurn === true);
   const currentPlayerHasTurn = playerWithTurn?.id === currentPlayerId;
+  const currentPlayer = gameState?.players.find(
+    (player) => player.id === currentPlayerId
+  );
 
   const handleFlip = () => {
     flipCoin(coin.id, gameState?.roomId as string);
@@ -27,7 +30,10 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   return (
     <>
       {gameState?.gameOver && (
-        <MultiplayerResultModal playerId={currentPlayerId!} players={players} />
+        <MultiplayerResultModal
+          playerName={currentPlayer?.name || ""}
+          players={gameState?.players || []}
+        />
       )}
       <button
         onClick={handleFlip}

@@ -7,6 +7,7 @@ export interface Player {
   id: string;
   name: string;
   score: number;
+  pairsFound: number;
   moves: number;
   hasTurn: boolean;
   ready: boolean;

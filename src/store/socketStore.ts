@@ -103,7 +103,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         gameOver: true,
         winner: data.winner
       }));
-      console.log('Game over:', data);
+      console.log('Game over:', get().gameState);
     });
 
     socket.on('disconnect', () => {

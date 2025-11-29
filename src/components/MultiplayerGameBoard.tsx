@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { useSocketStore } from "../store/socketStore";
 import { Icon } from "./Icon";
-import MultiplayerResultModal from "./MultiplayerResultModal";
 
 interface MultiplayerGameBoardProps {
   coin: {
@@ -19,9 +18,6 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   const currentPlayerId = socket?.id;
   const playerWithTurn = players.find((player) => player.hasTurn === true);
   const currentPlayerHasTurn = playerWithTurn?.id === currentPlayerId;
-  const currentPlayer = gameState?.players.find(
-    (player) => player.id === currentPlayerId
-  );
 
   const handleFlip = () => {
     flipCoin(coin.id, gameState?.roomId as string);
@@ -29,12 +25,6 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
 
   return (
     <>
-      {gameState?.gameOver && (
-        <MultiplayerResultModal
-          playerName={currentPlayer?.name || ""}
-          players={gameState?.players || []}
-        />
-      )}
       <button
         onClick={handleFlip}
         disabled={!currentPlayerHasTurn}
@@ -60,5 +50,4 @@ const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
   );
 };
 
-// Memo wrapper to prevent unnecessary re-renders when props haven't changed
 export const MultiplayerGameBoard = memo(MultiplayerGameBoardComponent);

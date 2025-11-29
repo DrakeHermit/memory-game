@@ -10,6 +10,9 @@ interface ServerGameState {
   playerId: string;
   flippedCoins: number[];
   matchedPairs: number[];
+  winner: Player | null;
+  winners: Player[];
+  isTie: boolean | null;
   isProcessing: boolean;
   theme: string;
   gridSize: number;
@@ -26,6 +29,10 @@ interface SocketStore {
   gameState: ServerGameState | null;
   isRoomCreator: boolean;
   players: Player[];
+  gameOver: boolean;
+  winner: Player | null;
+  winners: Player[];
+  isTie: boolean | null;
   connect: () => void;
   disconnect: () => void; 
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
@@ -43,6 +50,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   gameState: null,
   isRoomCreator: false,
   players: [],
+  winner: null,
+  winners: [],
+  isTie: null,
+  gameOver: false,
   connect: () => {
     if (get().socket?.connected) {
     return; 
@@ -65,10 +76,18 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('gameState', (data) => {
-    set({ 
+      set({ 
       gameState: data.gameState,
       players: data.gameState?.players || []
       });
+      if (data.gameState?.gameOver) {
+        set({
+          gameOver: data.gameState?.gameOver,
+          winner: data.gameState?.winner || null,
+          winners: data.gameState?.winners || [],
+          isTie: data.gameState?.isTie || null
+        });
+      }
     });
 
     socket.on('playerJoined', (data) => {
@@ -97,13 +116,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
 
-    socket.on('gameOver', (data: { winner: Player }) => {
+     socket.on('flipCoinsBack', (coinsToFlipBack: number[]) => {
       set((state) => ({
-        ...state,
-        gameOver: true,
-        winner: data.winner
+        gameState: state.gameState ? {
+          ...state.gameState,
+          flippedCoins: state.gameState.flippedCoins.filter(
+            coinId => !coinsToFlipBack.includes(coinId)
+          )
+        } : null
       }));
-      console.log('Game over:', get().gameState);
     });
 
     socket.on('disconnect', () => {
@@ -113,17 +134,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     socket.on('connect_error', (error) => {
       console.error('Connection error:', error);
       set({ isConnected: false });
-    });
-
-    socket.on('flipCoinsBack', (coinsToFlipBack: number[]) => {
-      set((state) => ({
-        gameState: state.gameState ? {
-          ...state.gameState,
-          flippedCoins: state.gameState.flippedCoins.filter(
-            coinId => !coinsToFlipBack.includes(coinId)
-          )
-        } : null
-      }));
     });
 
     set({ socket });

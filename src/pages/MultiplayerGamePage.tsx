@@ -10,9 +10,9 @@ interface gridClasses {
 
 export const MultiplayerGamePage = () => {
   const { formData } = useLobbyStore();
-  const { players, gameState, socket } = useSocketStore();
+  const { players, gameState } = useSocketStore();
 
-  const currentPlayerId = socket?.id;
+  const winner = gameState?.winner;
 
   const size = gameState?.gridSize || 4;
   const coins = gameState?.coins || [];
@@ -25,7 +25,10 @@ export const MultiplayerGamePage = () => {
   return (
     <>
       {gameState?.gameOver && (
-        <MultiplayerResultModal playerId={currentPlayerId!} players={players} />
+        <MultiplayerResultModal
+          playerName={winner?.name || ""}
+          players={players}
+        />
       )}
       <div className="bg-white relative">
         <NavBar />

@@ -1,19 +1,41 @@
 import { useNavigate } from "react-router-dom";
 import useLobbyStore from "../store/useLobbyStore";
 import { useSocketStore } from "../store/socketStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const MultiplayerContent = () => {
   const { formData } = useLobbyStore();
-  const { socket, isConnected, roomId, createRoom } = useSocketStore();
+  const {
+    socket,
+    isConnected,
+    roomId,
+    createRoom,
+    removeRoom,
+    connect,
+  } = useSocketStore();
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState("");
-  const copyUrl = `${window.location.origin}/lobby/${roomId}`;
+  const [copyUrl, setCopyUrl] = useState(
+    `${window.location.origin}/lobby/${roomId || ""}`
+  );
+
+  useEffect(() => {
+    if (!socket || !isConnected) {
+      connect();
+    }
+  }, [socket, isConnected, connect]);
+
+  useEffect(() => {
+    if (roomId) {
+      setCopyUrl(`${window.location.origin}/lobby/${roomId}`);
+    } else {
+      setCopyUrl("");
+    }
+  }, [roomId]);
 
   const handleCreateRoom = () => {
     if (!socket || !isConnected) {
       console.error("Socket not connected");
-      return;
     }
 
     if (!playerName.trim()) {
@@ -25,11 +47,6 @@ const MultiplayerContent = () => {
       .toString(36)
       .substring(2, 15)}`;
 
-    if (roomId) {
-      console.log("Room already exists:", roomId);
-      return;
-    }
-
     const gridSizeNumber = formData.gridSize === "4x4" ? 4 : 6;
     createRoom(
       newRoomId,
@@ -38,6 +55,15 @@ const MultiplayerContent = () => {
       gridSizeNumber,
       playerName.trim()
     );
+  };
+
+  const handleRemoveRoom = () => {
+    if (!socket || !isConnected) {
+      console.error("Socket not connected");
+      return;
+    }
+    removeRoom(roomId);
+    navigate("/");
   };
 
   return (
@@ -75,14 +101,13 @@ const MultiplayerContent = () => {
             onChange={(e) => setPlayerName(e.target.value)}
             placeholder="Enter your name"
             className="w-full px-3 py-2 border text-black border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            disabled={!!roomId}
           />
         </div>
         <div className="text-center">
           <button
             onClick={handleCreateRoom}
             className="w-full sm:w-auto bg-orange-400 text-white px-6 py-3 md:py-2 rounded-lg font-semibold hover:bg-orange-300 transition-colors text-sm md:text-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!isConnected || !!roomId || !playerName.trim()}
+            disabled={!isConnected || !playerName.trim()}
           >
             Create New Room
           </button>
@@ -112,16 +137,14 @@ const MultiplayerContent = () => {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <button
-          onClick={() => navigate(`/lobby/${roomId}`)}
+          onClick={handleRemoveRoom}
           disabled={!roomId}
           className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Go to Lobby
         </button>
         <button
-          onClick={() => {
-            navigate("/");
-          }}
+          onClick={handleRemoveRoom}
           className="w-full sm:flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 cursor-pointer"
         >
           Leave Room Creation

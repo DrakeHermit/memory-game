@@ -37,6 +37,7 @@ interface SocketStore {
   disconnect: () => void; 
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
   joinRoom: (roomId: string, playerName: string) => void;
+  removeRoom: (roomId: string) => void;
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
@@ -149,6 +150,13 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     if (socket) {
       socket.emit('joinRoom', { roomId, playerName });
     }
+  },
+  removeRoom: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('removeRoom', { roomId });
+    }
+    set({ roomId: '', isRoomCreator: false, players: []});
   },
   changeName: (roomId: string, newName: string) => {
     const { socket } = get();

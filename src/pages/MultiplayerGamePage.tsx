@@ -1,6 +1,6 @@
 import { NavBar } from "../components/NavBar";
 import { MultiplayerFooter } from "../components/MultiplayerFooter";
-import useLobbyStore from "../store/useLobbyStore";
+// import useLobbyStore from "../store/useLobbyStore";
 import { useSocketStore } from "../store/socketStore";
 import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
 import MultiplayerResultModal from "../components/MultiplayerResultModal";
@@ -9,7 +9,7 @@ interface gridClasses {
 }
 
 export const MultiplayerGamePage = () => {
-  const { formData } = useLobbyStore();
+  // const { formData } = useLobbyStore();
   const { players, gameState } = useSocketStore();
 
   const winner = gameState?.winner;
@@ -47,11 +47,7 @@ export const MultiplayerGamePage = () => {
               key={player.id}
               id={player.name}
               moves={player.moves}
-              className={
-                formData.players === "2"
-                  ? "w-full md:w-[271px]"
-                  : "w-full md:w-[542px]"
-              }
+              className="flex-1"
               hasTurn={player.hasTurn}
             />
           ))}

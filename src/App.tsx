@@ -4,8 +4,6 @@ import LobbyLayout from "./layout/LobbyLayout";
 import MultiplayerSetup from "./components/MultiplayerSetup";
 import SinglePlayerContent from "./components/SinglePlayerContent";
 import LobbyPage from "./pages/LobbyPage";
-import { useEffect } from "react";
-import { useSocketStore } from "./store/socketStore";
 import { MultiplayerGamePage } from "./pages/MultiplayerGamePage";
 
 const router = createBrowserRouter([
@@ -44,13 +42,6 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const { connect, isConnected } = useSocketStore();
-
-  useEffect(() => {
-    if (!isConnected) {
-      connect();
-    }
-  }, [connect, isConnected]);
   return (
     <div className="font-family-sans">
       <RouterProvider router={router} />

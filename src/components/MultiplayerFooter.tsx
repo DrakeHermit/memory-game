@@ -14,7 +14,7 @@ export const MultiplayerFooter = ({
   const shortId = id.charAt(0).toUpperCase();
 
   return (
-    <div>
+    <div className={className}>
       <div className="relative">
         {hasTurn && (
           <div className="absolute top-[-12px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[12px] border-r-[12px] border-b-[12px] border-l-transparent border-r-transparent border-b-orange-400"></div>

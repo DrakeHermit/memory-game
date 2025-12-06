@@ -10,8 +10,16 @@ interface UseLobbyEffectsProps {
  
 export const useLobbyEffects = ({ roomId, isJoiningViaLink, isRoomCreator }: UseLobbyEffectsProps) => { 
   const navigate = useNavigate(); 
-  const { socket, joinRoom } = useSocketStore();
+  const { socket, joinRoom, connect, isConnected } = useSocketStore();
   const hasJoinedRoom = useRef(false);
+  const hasAttemptedConnect = useRef(false);
+
+  useEffect(() => {
+    if (!isConnected && !hasAttemptedConnect.current) {
+      hasAttemptedConnect.current = true;
+      connect();
+    }
+  }, [isConnected, connect]);
 
   useEffect(() => { 
     if (!socket) return; 

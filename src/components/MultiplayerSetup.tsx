@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import useLobbyStore from "../store/useLobbyStore";
 import { useSocketStore } from "../store/socketStore";
 import { useEffect, useState } from "react";
+import { useLobbyEffects } from "../hooks/useLobbyEffects";
 
 const MultiplayerContent = () => {
   const { formData } = useLobbyStore();
@@ -11,19 +12,13 @@ const MultiplayerContent = () => {
     roomId,
     createRoom,
     removeRoom,
-    connect,
   } = useSocketStore();
+  useLobbyEffects({ roomId, isJoiningViaLink: false, isRoomCreator: false });
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState("");
   const [copyUrl, setCopyUrl] = useState(
     `${window.location.origin}/lobby/${roomId || ""}`
   );
-
-  useEffect(() => {
-    if (!socket || !isConnected) {
-      connect();
-    }
-  }, [socket, isConnected, connect]);
 
   useEffect(() => {
     if (roomId) {
@@ -137,7 +132,7 @@ const MultiplayerContent = () => {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <button
-          onClick={handleRemoveRoom}
+          onClick={() => navigate(`/lobby/${roomId}`)}
           disabled={!roomId}
           className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >

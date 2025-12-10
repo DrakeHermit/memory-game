@@ -42,6 +42,7 @@ interface SocketStore {
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
   flipCoin: (coinId: number, roomId: string) => void;
+  resetGame: (roomId: string) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -175,6 +176,13 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     if (socket) {
       socket.emit('startGame', { roomId });
     }
+  },
+  resetGame: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('resetGame', { roomId });
+    }
+    console.log('Game reset')
   },
   flipCoin: (coinId: number, roomId: string) => {
     const { socket } = get();

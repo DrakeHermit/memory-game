@@ -1,5 +1,6 @@
 import type { Player } from "../types/game";
 import { useSocketStore } from "../store/socketStore";
+import { useNavigate } from "react-router-dom";
 const MultiplayerResultModal = ({
   playerName,
   players,
@@ -7,7 +8,9 @@ const MultiplayerResultModal = ({
   playerName: string;
   players: Player[];
 }) => {
-  const { winner } = useSocketStore();
+  const { winner, resetGame, gameState } = useSocketStore();
+  const roomId = gameState?.roomId || "";
+  const navigate = useNavigate();
   return (
     <div className="absolute top-0 left-0 z-1000 w-screen flex min-h-screen justify-center items-center bg-black/50">
       <div className="flex flex-col justify-center bg-gray-100 px-[24px] md:px-[55px] md:py-[55px] py-[28px] rounded-lg shadow-lg text-center w-[327px] md:w-[654px]">
@@ -44,7 +47,12 @@ const MultiplayerResultModal = ({
           ))}
         </div>
         <button
+          onClick={() => {
+            resetGame(roomId);
+            navigate("/");
+          }}
           className="bg-blue-100 text-[18px] mt-[56px] self-center md:text-[20px] rounded-full w-full md:w-1/2 md:py-[13px] py-[12px] md:px-[28px] text-blue-800 font-bold cursor-pointer"
+          disabled={!roomId}
           type="button"
         >
           Setup New Game

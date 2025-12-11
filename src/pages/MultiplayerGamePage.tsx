@@ -1,16 +1,30 @@
 import { NavBar } from "../components/NavBar";
 import { MultiplayerFooter } from "../components/MultiplayerFooter";
-// import useLobbyStore from "../store/useLobbyStore";
 import { useSocketStore } from "../store/socketStore";
 import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
 import MultiplayerResultModal from "../components/MultiplayerResultModal";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 interface gridClasses {
   [key: number]: string;
 }
 
 export const MultiplayerGamePage = () => {
-  // const { formData } = useLobbyStore();
   const { players, gameState } = useSocketStore();
+  const navigate = useNavigate();
+  const { socket } = useSocketStore();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("gameReset", () => {
+      navigate("/");
+    });
+
+    return () => {
+      socket.off("gameReset");
+    };
+  }, [socket, navigate]);
 
   const winner = gameState?.winner;
 

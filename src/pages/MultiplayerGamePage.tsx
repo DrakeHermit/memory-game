@@ -45,7 +45,7 @@ export const MultiplayerGamePage = () => {
         />
       )}
       <div className="bg-white relative">
-        <NavBar />
+        <NavBar isMultiplayer={true} />
         <div
           className={`grid place-self-center ${
             size === 4 ? "gap-[8px] md:gap-400" : "gap-[8px] md:gap-200"

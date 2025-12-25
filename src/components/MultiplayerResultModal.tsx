@@ -13,6 +13,7 @@ const MultiplayerResultModal = ({
   const navigate = useNavigate();
 
   const maxPairs = Math.max(...players.map((p) => p.pairsFound));
+
   const isHighlighted = (player: Player) => {
     if (gameState?.isTie) {
       return player.pairsFound === maxPairs;

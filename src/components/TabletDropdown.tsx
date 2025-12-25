@@ -2,15 +2,15 @@ import { useNavigate } from "react-router-dom";
 import gameStateStore from "../store/gameStateStore";
 import { useSocketStore } from "../store/socketStore";
 
-interface MobileMenuProps {
+interface TabletDropdownProps {
   onClose: () => void;
   isMultiplayer?: boolean;
 }
 
-export const MobileMenu = ({
+export const TabletDropdown = ({
   onClose,
   isMultiplayer = false,
-}: MobileMenuProps) => {
+}: TabletDropdownProps) => {
   const navigate = useNavigate();
   const { resetGameState } = gameStateStore();
   const { isRoomCreator, resetGame, roomId, disconnect } = useSocketStore();
@@ -37,18 +37,19 @@ export const MobileMenu = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center px-6 bg-black/50">
-      <div className="bg-gray-100 py-[24px] px-[24px] rounded-xl shadow-lg text-center w-full max-w-[280px]">
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div className="flex flex-col absolute top-full right-0 mt-2 z-50 bg-white rounded-xl shadow-lg border border-blue-100 min-w-[200px] overflow-hidden divide-y divide-blue-100">
         {!isMultiplayer && (
           <>
             <button
-              className="bg-orange-400 text-[16px] text-white w-full font-bold py-[12px] mb-3 rounded-full cursor-pointer"
+              className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
               onClick={handleSinglePlayerRestart}
             >
               Restart
             </button>
             <button
-              className="bg-blue-100 text-[16px] rounded-full w-full py-[12px] mb-3 text-blue-800 font-bold cursor-pointer"
+              className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
               type="button"
               onClick={() => {
                 navigate("/");
@@ -63,21 +64,21 @@ export const MobileMenu = ({
           <>
             {isRoomCreator && (
               <button
-                className="bg-orange-400 text-[16px] text-white w-full font-bold py-[12px] mb-3 rounded-full cursor-pointer"
+                className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
                 onClick={handleMultiplayerRestart}
               >
                 Restart
               </button>
             )}
             <button
-              className="bg-blue-100 text-[16px] rounded-full w-full py-[12px] mb-3 text-blue-800 font-bold cursor-pointer"
+              className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
               type="button"
               onClick={handlePauseGame}
             >
               Pause Game
             </button>
             <button
-              className="bg-blue-100 text-[16px] rounded-full w-full py-[12px] mb-3 text-blue-800 font-bold cursor-pointer"
+              className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
               type="button"
               onClick={handleLeaveGame}
             >
@@ -85,13 +86,7 @@ export const MobileMenu = ({
             </button>
           </>
         )}
-        <button
-          onClick={onClose}
-          className="bg-blue-100 text-[16px] rounded-full w-full py-[12px] text-blue-800 font-bold cursor-pointer"
-        >
-          Resume Game
-        </button>
       </div>
-    </div>
+    </>
   );
 };

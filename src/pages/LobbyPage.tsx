@@ -85,7 +85,7 @@ const LobbyPage = () => {
           )}
 
           <div className="mt-4">
-            {isJoiningViaLink && (
+            {!isRoomCreator && (
               <div className="bg-gray-100 rounded-lg p-4 md:p-6 text-center">
                 <div className="mb-4">
                   <label

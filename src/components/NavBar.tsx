@@ -11,7 +11,13 @@ interface NavBarProps {
 
 export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
   const { resetGameState } = GameStateStore();
-  const { isRoomCreator, resetGame, roomId, disconnect } = useSocketStore();
+  const {
+    isRoomCreator,
+    resetGame,
+    roomId,
+    disconnect,
+    pauseGame,
+  } = useSocketStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTabletDropdownOpen, setIsTabletDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +28,9 @@ export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
   };
 
   const handlePauseGame = () => {
-    setIsMobileMenuOpen(true);
+    if (roomId) {
+      pauseGame(roomId);
+    }
   };
 
   const handleMultiplayerRestart = () => {

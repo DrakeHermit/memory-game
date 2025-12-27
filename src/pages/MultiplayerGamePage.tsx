@@ -5,6 +5,7 @@ import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
 import MultiplayerResultModal from "../components/MultiplayerResultModal";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import PausedGameModal from "../components/PausedGameModal";
 interface gridClasses {
   [key: number]: string;
 }
@@ -38,6 +39,7 @@ export const MultiplayerGamePage = () => {
 
   return (
     <>
+      {gameState?.gamePaused && <PausedGameModal />}
       {gameState?.gameOver && (
         <MultiplayerResultModal
           playerName={winner?.name || ""}

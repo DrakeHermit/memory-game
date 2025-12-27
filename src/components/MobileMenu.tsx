@@ -13,7 +13,13 @@ export const MobileMenu = ({
 }: MobileMenuProps) => {
   const navigate = useNavigate();
   const { resetGameState } = gameStateStore();
-  const { isRoomCreator, resetGame, roomId, disconnect } = useSocketStore();
+  const {
+    isRoomCreator,
+    resetGame,
+    roomId,
+    disconnect,
+    pauseGame,
+  } = useSocketStore();
 
   const handleSinglePlayerRestart = () => {
     resetGameState();
@@ -33,6 +39,9 @@ export const MobileMenu = ({
   };
 
   const handlePauseGame = () => {
+    if (roomId) {
+      pauseGame(roomId);
+    }
     onClose();
   };
 

@@ -7,6 +7,8 @@ interface ServerGameState {
   players: Player[];
   gameStarted: boolean;
   gameOver: boolean;
+  gamePaused: boolean;
+  pausedBy: Player | null;
   playerId: string;
   flippedCoins: number[];
   matchedPairs: number[];
@@ -41,8 +43,10 @@ interface SocketStore {
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
   startGame: (roomId: string) => void;
-  flipCoin: (coinId: number, roomId: string) => void;
   resetGame: (roomId: string) => void;
+  pauseGame: (roomId: string) => void;
+  resumeGame: (roomId: string) => void;
+  flipCoin: (coinId: number, roomId: string) => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -93,7 +97,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerJoined', (data) => {
-      
       set((state) => ({
         ...state,
         currentPlayers: data.currentPlayers,
@@ -125,6 +128,25 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
           flippedCoins: state.gameState.flippedCoins.filter(
             coinId => !coinsToFlipBack.includes(coinId)
           )
+        } : null
+      }));
+     });
+    
+    socket.on('gamePaused', () => {
+      console.log('Game paused');
+      set((state) => ({
+        gameState: state.gameState ? {
+          ...state.gameState,
+          gamePaused: true
+        } : null
+      }));
+    });
+    socket.on('gameResumed', () => {
+      console.log('Game resumed');
+      set((state) => ({
+        gameState: state.gameState ? {
+          ...state.gameState,
+          gamePaused: false
         } : null
       }));
     });
@@ -183,6 +205,18 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       socket.emit('resetGame', { roomId });
     }
     console.log('Game reset')
+  },
+  pauseGame: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('pauseGame', { roomId });
+    }
+  },
+  resumeGame: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('resumeGame', { roomId });
+    }
   },
   flipCoin: (coinId: number, roomId: string) => {
     const { socket } = get();

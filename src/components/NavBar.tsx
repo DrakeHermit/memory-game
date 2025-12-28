@@ -15,15 +15,15 @@ export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
     isRoomCreator,
     resetGame,
     roomId,
-    disconnect,
     pauseGame,
+    leaveRoom,
   } = useSocketStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTabletDropdownOpen, setIsTabletDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLeaveGame = () => {
-    disconnect();
+    leaveRoom(roomId);
     navigate("/");
   };
 

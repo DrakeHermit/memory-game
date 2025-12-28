@@ -6,14 +6,14 @@ import MultiplayerResultModal from "../components/MultiplayerResultModal";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PausedGameModal from "../components/PausedGameModal";
+import PlayerLeftModal from "../components/PlayerLeftModal";
 interface gridClasses {
   [key: number]: string;
 }
 
 export const MultiplayerGamePage = () => {
-  const { players, gameState } = useSocketStore();
+  const { players, gameState, playerLeftInfo, socket } = useSocketStore();
   const navigate = useNavigate();
-  const { socket } = useSocketStore();
 
   useEffect(() => {
     if (!socket) return;
@@ -39,6 +39,7 @@ export const MultiplayerGamePage = () => {
 
   return (
     <>
+      {playerLeftInfo?.playerLeftDuringGame && <PlayerLeftModal />}
       {gameState?.gamePaused && <PausedGameModal />}
       {gameState?.gameOver && (
         <MultiplayerResultModal

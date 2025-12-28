@@ -5,6 +5,9 @@ const PausedGameModal = () => {
   const roomId = gameState?.roomId || "";
   const pausedBy = gameState?.pausedBy;
   const currentPlayerId = socket?.id;
+  const currentPlayerName = gameState?.players.find(
+    (player) => player.id === currentPlayerId
+  )?.name;
 
   const canResume = pausedBy?.id === currentPlayerId;
 
@@ -21,7 +24,11 @@ const PausedGameModal = () => {
           Game Paused
         </h3>
         <p className="text-blue-400 text-[14px] md:text-[18px] font-bold mb-300 md:my-500">
-          {pausedBy?.name || "A player"} has paused the game
+          {pausedBy?.name === currentPlayerName
+            ? "You"
+            : pausedBy?.name || "A player"}{" "}
+          {pausedBy?.name === currentPlayerName ? "have" : "has"} paused the
+          game
         </p>
 
         <div className="flex flex-col items-center gap-200 mt-4">

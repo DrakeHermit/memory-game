@@ -24,6 +24,11 @@ interface ServerGameState {
   }>;
 }
 
+interface PlayerLeftInfo {
+  playerLeftDuringGame: boolean;
+  leftPlayerName: string;
+}
+
 interface SocketStore {
   socket: Socket | null;
   isConnected: boolean;
@@ -35,10 +40,12 @@ interface SocketStore {
   winner: Player | null;
   winners: Player[];
   isTie: boolean | null;
+  playerLeftInfo: PlayerLeftInfo | null;
   connect: () => void;
   disconnect: () => void; 
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
   joinRoom: (roomId: string, playerName: string) => void;
+  leaveRoom: (roomId: string) => void;
   removeRoom: (roomId: string) => void;
   changeName: (roomId: string, playerName: string) => void;
   toggleReady: (roomId: string) => void;
@@ -47,6 +54,7 @@ interface SocketStore {
   pauseGame: (roomId: string) => void;
   resumeGame: (roomId: string) => void;
   flipCoin: (coinId: number, roomId: string) => void;
+  clearPlayerLeftInfo: () => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -60,6 +68,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   winners: [],
   isTie: null,
   gameOver: false,
+  playerLeftInfo: null,
   connect: () => {
     if (get().socket?.connected) {
     return; 
@@ -79,6 +88,17 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     socket.on('joinRoom', (roomId: string) => {
       set({ roomId, isConnected: true, isRoomCreator: false });
+    });
+
+    socket.on('playerLeftRoom', (data: { playerId: string; playerLeftDuringGame: boolean; leftPlayerName: string }) => {
+      set((state) => ({
+        ...state,
+        players: state.players.filter(player => player.id !== data.playerId),
+        playerLeftInfo: data.playerLeftDuringGame ? {
+          playerLeftDuringGame: data.playerLeftDuringGame,
+          leftPlayerName: data.leftPlayerName
+        } : null
+      }));
     });
 
     socket.on('gameState', (data) => {
@@ -133,7 +153,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
      });
     
     socket.on('gamePaused', () => {
-      console.log('Game paused');
       set((state) => ({
         gameState: state.gameState ? {
           ...state.gameState,
@@ -142,7 +161,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
     socket.on('gameResumed', () => {
-      console.log('Game resumed');
       set((state) => ({
         gameState: state.gameState ? {
           ...state.gameState,
@@ -172,6 +190,12 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.emit('joinRoom', { roomId, playerName });
+    }
+  },
+  leaveRoom: (roomId: string) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit('leaveRoom', { roomId });
     }
   },
   removeRoom: (roomId: string) => {
@@ -233,5 +257,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       socket.disconnect();
       set({ socket: null, isConnected: false, roomId: '', players: [] });
     }
+  },
+  clearPlayerLeftInfo: () => {
+    set({ playerLeftInfo: null });
   },
 }));

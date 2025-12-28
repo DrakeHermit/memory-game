@@ -79,10 +79,19 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('connect', () => {
+      console.log('[Socket] Connected:', socket.id);
       set({ isConnected: true });
+      
+      // Rejoin room if we were in one (handles reconnection)
+      const currentRoomId = get().roomId;
+      if (currentRoomId) {
+        console.log('[Socket] Rejoining room after connect:', currentRoomId);
+        socket.emit('rejoinRoom', { roomId: currentRoomId });
+      }
     });
 
     socket.on('roomCreated', (data: { roomId: string, room: string }) => {
+      console.log('[Socket] Room created:', data.roomId);
       set({ roomId: data.roomId, isConnected: true, isRoomCreator: true });
     });
 
@@ -91,6 +100,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerLeftRoom', (data: { playerId: string; playerLeftDuringGame: boolean; leftPlayerName: string }) => {
+      console.log('[Socket] Player left room:', data);
       set((state) => ({
         ...state,
         players: state.players.filter(player => player.id !== data.playerId),
@@ -102,6 +112,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('gameState', (data) => {
+      console.log('[Socket] Game state received, players:', data.gameState?.players?.length);
       set({ 
       gameState: data.gameState,
       players: data.gameState?.players || []
@@ -117,6 +128,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerJoined', (data) => {
+      console.log('[Socket] Player joined:', data);
       set((state) => ({
         ...state,
         currentPlayers: data.currentPlayers,
@@ -131,6 +143,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerNameChanged', (data: { playerId: string; newName: string }) => {
+      console.log('[Socket] Player name changed:', data);
       set((state) => ({
         ...state,
         players: state.players.map(player => 
@@ -169,7 +182,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
+      console.log('[Socket] Disconnected:', reason);
       set({ isConnected: false });
     });
 

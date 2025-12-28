@@ -96,6 +96,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('joinRoom', (roomId: string) => {
+      console.log('[Socket] Joined room:', roomId);
       set({ roomId, isConnected: true, isRoomCreator: false });
     });
 
@@ -188,8 +189,16 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('connect_error', (error) => {
-      console.error('Connection error:', error);
+      console.error('[Socket] Connection error:', error);
       set({ isConnected: false });
+    });
+
+    socket.io.on('reconnect', (attempt) => {
+      console.log('[Socket] Reconnected after', attempt, 'attempts');
+    });
+
+    socket.io.on('reconnect_attempt', (attempt) => {
+      console.log('[Socket] Reconnection attempt:', attempt);
     });
 
     set({ socket });

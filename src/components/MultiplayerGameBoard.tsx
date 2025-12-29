@@ -10,13 +10,12 @@ interface MultiplayerGameBoardProps {
 }
 
 const MultiplayerGameBoardComponent = ({ coin }: MultiplayerGameBoardProps) => {
-  const { gameState, flipCoin, players, socket } = useSocketStore();
+  const { gameState, flipCoin, players, playerId } = useSocketStore();
   const isMatched = gameState?.matchedPairs.includes(coin.id);
   const size = gameState?.gridSize || 4;
 
-  const currentPlayerId = socket?.id;
   const playerWithTurn = players.find((player) => player.hasTurn === true);
-  const currentPlayerHasTurn = playerWithTurn?.id === currentPlayerId;
+  const currentPlayerHasTurn = playerWithTurn?.id === playerId;
   const isFlipped =
     gameState?.flippedCoins.includes(coin.id) && currentPlayerHasTurn;
 

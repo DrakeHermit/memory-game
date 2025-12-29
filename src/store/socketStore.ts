@@ -1,6 +1,48 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
+import { v4 as uuidv4 } from 'uuid';
 import type { Player } from '../types/game';
+
+const PLAYER_ID_KEY = 'memory_game_player_id';
+const ROOM_ID_KEY = 'memory_game_room_id';
+const IS_HOST_KEY = 'memory_game_is_host';
+
+const getOrCreatePlayerId = (): string => {
+  let playerId = sessionStorage.getItem(PLAYER_ID_KEY);
+  if (!playerId) {
+    playerId = uuidv4();
+    sessionStorage.setItem(PLAYER_ID_KEY, playerId);
+  }
+  return playerId;
+};
+
+const getStoredRoomId = (): string => {
+  return sessionStorage.getItem(ROOM_ID_KEY) || '';
+};
+
+const setStoredRoomId = (roomId: string): void => {
+  if (roomId) {
+    sessionStorage.setItem(ROOM_ID_KEY, roomId);
+  } else {
+    sessionStorage.removeItem(ROOM_ID_KEY);
+  }
+};
+
+const clearPlayerId = (): void => {
+  sessionStorage.removeItem(PLAYER_ID_KEY);
+};
+
+const getStoredIsHost = (): boolean => {
+  return sessionStorage.getItem(IS_HOST_KEY) === 'true';
+};
+
+const setStoredIsHost = (isHost: boolean): void => {
+  if (isHost) {
+    sessionStorage.setItem(IS_HOST_KEY, 'true');
+  } else {
+    sessionStorage.removeItem(IS_HOST_KEY);
+  }
+};
 
 interface ServerGameState {
   roomId: string;
@@ -32,6 +74,7 @@ interface PlayerLeftInfo {
 interface SocketStore {
   socket: Socket | null;
   isConnected: boolean;
+  playerId: string;
   roomId: string;
   gameState: ServerGameState | null;
   isRoomCreator: boolean;
@@ -55,14 +98,16 @@ interface SocketStore {
   resumeGame: (roomId: string) => void;
   flipCoin: (coinId: number, roomId: string) => void;
   clearPlayerLeftInfo: () => void;
+  getPlayerId: () => string;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   socket: null,
   isConnected: false,
-  roomId: '',
+  playerId: getOrCreatePlayerId(),
+  roomId: getStoredRoomId(),
   gameState: null,
-  isRoomCreator: false,
+  isRoomCreator: getStoredIsHost(),
   players: [],
   winner: null,
   winners: [],
@@ -79,29 +124,33 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('connect', () => {
-      console.log('[Socket] Connected:', socket.id);
       set({ isConnected: true });
       
-      // Rejoin room if we were in one (handles reconnection)
-      const currentRoomId = get().roomId;
-      if (currentRoomId) {
-        console.log('[Socket] Rejoining room after connect:', currentRoomId);
-        socket.emit('rejoinRoom', { roomId: currentRoomId });
+      const playerId = get().playerId;
+      const storedRoomId = getStoredRoomId();
+      
+      socket.emit('register', { playerId, roomId: storedRoomId });
+    });
+
+    socket.on('registered', (data: { success: boolean; reconnected: boolean }) => {
+      if (data.reconnected) {
+        console.log('[Socket] Successfully reconnected to existing session');
       }
     });
 
     socket.on('roomCreated', (data: { roomId: string, room: string }) => {
-      console.log('[Socket] Room created:', data.roomId);
+      setStoredRoomId(data.roomId);
+      setStoredIsHost(true);
       set({ roomId: data.roomId, isConnected: true, isRoomCreator: true });
     });
 
     socket.on('joinRoom', (roomId: string) => {
-      console.log('[Socket] Joined room:', roomId);
+      setStoredRoomId(roomId);
+      setStoredIsHost(false);
       set({ roomId, isConnected: true, isRoomCreator: false });
     });
 
     socket.on('playerLeftRoom', (data: { playerId: string; playerLeftDuringGame: boolean; leftPlayerName: string }) => {
-      console.log('[Socket] Player left room:', data);
       set((state) => ({
         ...state,
         players: state.players.filter(player => player.id !== data.playerId),
@@ -113,7 +162,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('gameState', (data) => {
-      console.log('[Socket] Game state received, players:', data.gameState?.players?.length);
       set({ 
       gameState: data.gameState,
       players: data.gameState?.players || []
@@ -129,14 +177,14 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerJoined', (data) => {
-      console.log('[Socket] Player joined:', data);
       set((state) => ({
         ...state,
         currentPlayers: data.currentPlayers,
         maxPlayers: data.maxPlayers
       }));
       
-      socket.emit('getGameState', { roomId: get().roomId });
+      const playerId = get().playerId;
+      socket.emit('getGameState', { roomId: get().roomId, playerId });
     })
 
     socket.on('roomError', (error: {message: string}) => {
@@ -144,7 +192,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     });
 
     socket.on('playerNameChanged', (data: { playerId: string; newName: string }) => {
-      console.log('[Socket] Player name changed:', data);
       set((state) => ({
         ...state,
         players: state.players.map(player => 
@@ -183,92 +230,87 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
 
-    socket.on('disconnect', (reason) => {
-      console.log('[Socket] Disconnected:', reason);
+    socket.on('disconnect', () => {
       set({ isConnected: false });
     });
 
-    socket.on('connect_error', (error) => {
-      console.error('[Socket] Connection error:', error);
+    socket.on('connect_error', () => {
       set({ isConnected: false });
     });
-
-    socket.io.on('reconnect', (attempt) => {
-      console.log('[Socket] Reconnected after', attempt, 'attempts');
-    });
-
-    socket.io.on('reconnect_attempt', (attempt) => {
-      console.log('[Socket] Reconnection attempt:', attempt);
-    });
-
     set({ socket });
   },
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('createRoom', { roomId, maxPlayers, theme, gridSize, playerName });
+      socket.emit('createRoom', { roomId, maxPlayers, theme, gridSize, playerName, playerId });
     }
   },
   joinRoom: (roomId: string, playerName: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('joinRoom', { roomId, playerName });
+      socket.emit('joinRoom', { roomId, playerName, playerId });
     }
   },
   leaveRoom: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('leaveRoom', { roomId });
+      socket.emit('leaveRoom', { roomId, playerId });
     }
+    setStoredRoomId('');
+    setStoredIsHost(false);
+    set({ roomId: '', isRoomCreator: false });
   },
   removeRoom: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('removeRoom', { roomId });
+      socket.emit('removeRoom', { roomId, playerId });
     }
+    setStoredRoomId('');
+    setStoredIsHost(false);
     set({ roomId: '', isRoomCreator: false, players: []});
   },
   changeName: (roomId: string, newName: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('changePlayerName', { roomId, newName });
+      socket.emit('changePlayerName', { roomId, newName, playerId });
     }
   },
   toggleReady: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('togglePlayerReady', { roomId });
+      socket.emit('togglePlayerReady', { roomId, playerId });
     }
   },
   startGame: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('startGame', { roomId });
+      socket.emit('startGame', { roomId, playerId });
     }
   },
   resetGame: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('resetGame', { roomId });
+      socket.emit('resetGame', { roomId, playerId });
     }
-    console.log('Game reset')
+    setStoredRoomId('');
+    setStoredIsHost(false);
   },
   pauseGame: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('pauseGame', { roomId });
+      socket.emit('pauseGame', { roomId, playerId });
     }
   },
   resumeGame: (roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('resumeGame', { roomId });
+      socket.emit('resumeGame', { roomId, playerId });
     }
   },
   flipCoin: (coinId: number, roomId: string) => {
-    const { socket } = get();
+    const { socket, playerId } = get();
     if (socket) {
-      socket.emit('flipCoin', { coinId, roomId });
+      socket.emit('flipCoin', { coinId, roomId, playerId });
     }
     if (get().gameState?.flippedCoins.length === 2) { 
       return
@@ -278,10 +320,16 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.disconnect();
-      set({ socket: null, isConnected: false, roomId: '', players: [] });
+      clearPlayerId();
+      setStoredRoomId('');
+      setStoredIsHost(false);
+      set({ socket: null, isConnected: false, roomId: '', players: [], playerId: '', isRoomCreator: false });
     }
   },
   clearPlayerLeftInfo: () => {
     set({ playerLeftInfo: null });
+  },
+  getPlayerId: () => {
+    return get().playerId;
   },
 }));

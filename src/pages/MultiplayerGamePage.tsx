@@ -3,7 +3,7 @@ import { MultiplayerFooter } from "../components/MultiplayerFooter";
 import { useSocketStore } from "../store/socketStore";
 import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
 import MultiplayerResultModal from "../components/MultiplayerResultModal";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PausedGameModal from "../components/PausedGameModal";
 import PlayerLeftModal from "../components/PlayerLeftModal";
@@ -12,8 +12,23 @@ interface gridClasses {
 }
 
 export const MultiplayerGamePage = () => {
-  const { players, gameState, playerLeftInfo, socket } = useSocketStore();
+  const {
+    players,
+    gameState,
+    playerLeftInfo,
+    socket,
+    connect,
+    isConnected,
+  } = useSocketStore();
   const navigate = useNavigate();
+  const hasAttemptedConnect = useRef(false);
+
+  useEffect(() => {
+    if (!isConnected && !hasAttemptedConnect.current) {
+      hasAttemptedConnect.current = true;
+      connect();
+    }
+  }, [isConnected, connect]);
 
   useEffect(() => {
     if (!socket) return;

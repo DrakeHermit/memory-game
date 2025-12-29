@@ -1,15 +1,14 @@
 import { useSocketStore } from "../store/socketStore";
 
 const PausedGameModal = () => {
-  const { gameState, resumeGame, socket } = useSocketStore();
+  const { gameState, resumeGame, playerId } = useSocketStore();
   const roomId = gameState?.roomId || "";
   const pausedBy = gameState?.pausedBy;
-  const currentPlayerId = socket?.id;
   const currentPlayerName = gameState?.players.find(
-    (player) => player.id === currentPlayerId
+    (player) => player.id === playerId
   )?.name;
 
-  const canResume = pausedBy?.id === currentPlayerId;
+  const canResume = pausedBy?.id === playerId;
 
   const handleResume = () => {
     if (canResume && roomId) {

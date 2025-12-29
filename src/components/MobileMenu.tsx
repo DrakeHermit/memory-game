@@ -17,7 +17,7 @@ export const MobileMenu = ({
     isRoomCreator,
     resetGame,
     roomId,
-    disconnect,
+    leaveRoom,
     pauseGame,
   } = useSocketStore();
 
@@ -34,7 +34,9 @@ export const MobileMenu = ({
   };
 
   const handleLeaveGame = () => {
-    disconnect();
+    if (roomId) {
+      leaveRoom(roomId);
+    }
     navigate("/");
   };
 

@@ -7,6 +7,34 @@ interface UseLobbyEffectsProps {
   isJoiningViaLink: boolean;
   isRoomCreator: boolean;
 }
+export const useGameSocketEffects = () => {
+  const navigate = useNavigate();
+  const { socket, connect, isConnected } = useSocketStore();
+  const hasAttemptedConnect = useRef(false);
+
+  useEffect(() => {
+    if (!isConnected && !hasAttemptedConnect.current) {
+      hasAttemptedConnect.current = true;
+      connect();
+    }
+  }, [isConnected, connect]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNavigateHome = () => {
+      navigate("/");
+    };
+
+    socket.on("gameReset", handleNavigateHome);
+    socket.on("roomRemoved", handleNavigateHome);
+
+    return () => {
+      socket.off("gameReset", handleNavigateHome);
+      socket.off("roomRemoved", handleNavigateHome);
+    };
+  }, [socket, navigate]);
+};
  
 export const useLobbyEffects = ({ roomId, isJoiningViaLink, isRoomCreator }: UseLobbyEffectsProps) => { 
   const navigate = useNavigate(); 
@@ -26,12 +54,18 @@ export const useLobbyEffects = ({ roomId, isJoiningViaLink, isRoomCreator }: Use
 
     const handleGameStarted = () => {
       navigate(`/game/${roomId}`);
-    }
+    };
+
+    const handleRoomRemoved = () => {
+      navigate("/");
+    };
     
     socket.on("gameStarted", handleGameStarted);
+    socket.on("roomRemoved", handleRoomRemoved);
 
     return () => {
       socket.off("gameStarted", handleGameStarted);
+      socket.off("roomRemoved", handleRoomRemoved);
     };
   }, [socket, navigate, roomId]);
   

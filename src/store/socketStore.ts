@@ -191,6 +191,12 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       console.error('Room error:', error.message);
     });
 
+    socket.on('roomRemoved', () => {
+      setStoredRoomId('');
+      setStoredIsHost(false);
+      set({ roomId: '', isRoomCreator: false, players: [], gameState: null });
+    });
+
     socket.on('playerNameChanged', (data: { playerId: string; newName: string }) => {
       set((state) => ({
         ...state,

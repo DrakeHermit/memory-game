@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { HiUsers } from "react-icons/hi2";
 import useLobbyStore from "../store/useLobbyStore";
 import { Header } from "../components/Header";
@@ -8,6 +8,7 @@ import { useLobbyEffects } from "../hooks/useLobbyEffects";
 
 const LobbyPage = () => {
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const { formData } = useLobbyStore();
   const {
     isRoomCreator,
@@ -16,9 +17,12 @@ const LobbyPage = () => {
     changeName,
     toggleReady,
     startGame,
+    removeRoom,
+    leaveRoom,
   } = useSocketStore();
   const isJoiningViaLink = roomId !== storeRoomId && !isRoomCreator;
   useLobbyEffects({ roomId, isJoiningViaLink, isRoomCreator });
+
   const copyUrl = `${window.location.origin}/lobby/${roomId}`;
   const [playerName, setPlayerName] = useState("");
   const isReady =
@@ -30,6 +34,17 @@ const LobbyPage = () => {
     if (roomId) {
       startGame(roomId);
     }
+  };
+
+  const handleLeaveLobby = () => {
+    if (roomId) {
+      if (isRoomCreator) {
+        removeRoom(roomId);
+      } else {
+        leaveRoom(roomId);
+      }
+    }
+    navigate("/");
   };
 
   return (
@@ -192,15 +207,23 @@ const LobbyPage = () => {
               )}
             </div>
           </div>
-          {isRoomCreator && (
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            {isRoomCreator && (
+              <button
+                onClick={handleStartGame}
+                disabled={!isReady}
+                className="w-full sm:flex-1 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Start Game
+              </button>
+            )}
             <button
-              onClick={handleStartGame}
-              disabled={!isReady}
-              className="w-full sm:flex-1 mt-4 bg-orange-400 text-white py-3 rounded-lg font-semibold hover:bg-orange-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleLeaveLobby}
+              className="w-full sm:flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 cursor-pointer"
             >
-              Start Game
+              {isRoomCreator ? "Cancel Room" : "Leave Lobby"}
             </button>
-          )}
+          </div>
         </div>
       </main>
     </div>

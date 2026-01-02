@@ -64,6 +64,18 @@ interface ServerGameState {
     id: number;
     value: number | string;
   }>;
+
+  resetRequested: boolean;
+  resetRequestedBy: Player | null;
+  resetVotes: Record<string, boolean>;
+  resetUsed: boolean;
+}
+
+interface ResetRequestState {
+  requested: boolean;
+  requestedBy: Player | null;
+  votes: Record<string, boolean>;
+  isDisabled: boolean;
 }
 
 interface PlayerLeftInfo {
@@ -84,6 +96,8 @@ interface SocketStore {
   winners: Player[];
   isTie: boolean | null;
   playerLeftInfo: PlayerLeftInfo | null;
+  resetRequest: ResetRequestState | null;
+  showRestartSuccess: boolean;
   connect: () => void;
   disconnect: () => void; 
   createRoom: (roomId: string, maxPlayers: string, theme: string, gridSize: number, playerName: string) => void;
@@ -99,6 +113,10 @@ interface SocketStore {
   flipCoin: (coinId: number, roomId: string) => void;
   clearPlayerLeftInfo: () => void;
   getPlayerId: () => string;
+  requestReset: (roomId: string) => void;
+  voteReset: (roomId: string, accepted: boolean) => void;
+  clearResetRequest: () => void;
+  clearRestartSuccess: () => void;
 }
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
@@ -114,6 +132,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   isTie: null,
   gameOver: false,
   playerLeftInfo: null,
+  resetRequest: null,
+  showRestartSuccess: false,
   connect: () => {
     if (get().socket?.connected) {
     return; 
@@ -236,6 +256,49 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
     });
 
+    socket.on('resetRequested', (data: { requestedBy: Player; votes: Record<string, boolean> }) => {
+      set({
+        resetRequest: {
+          requested: true,
+          requestedBy: data.requestedBy,
+          votes: data.votes,
+          isDisabled: false
+        }
+      });
+    });
+
+    socket.on('resetVoteUpdate', (data: { votes: Record<string, boolean>; allVoted: boolean }) => {
+      set((state) => ({
+        resetRequest: state.resetRequest ? {
+          ...state.resetRequest,
+          votes: data.votes
+        } : null
+      }));
+    });
+
+    socket.on('resetAccepted', () => {
+      set({
+        resetRequest: null,
+        gameOver: false,
+        winner: null,
+        winners: [],
+        isTie: null,
+        playerLeftInfo: null,
+        showRestartSuccess: true
+      });
+    });
+
+    socket.on('resetDeclined', () => {
+      set({
+        resetRequest: {
+          requested: false,
+          requestedBy: null,
+          votes: {},
+          isDisabled: true
+        }
+      });
+    });
+
     socket.on('disconnect', () => {
       set({ isConnected: false });
     });
@@ -337,5 +400,23 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
   getPlayerId: () => {
     return get().playerId;
+  },
+  requestReset: (roomId: string) => {
+    const { socket, playerId } = get();
+    if (socket) {
+      socket.emit('requestReset', { roomId, playerId });
+    }
+  },
+  voteReset: (roomId: string, accepted: boolean) => {
+    const { socket, playerId } = get();
+    if (socket) {
+      socket.emit('voteReset', { roomId, playerId, accepted });
+    }
+  },
+  clearResetRequest: () => {
+    set({ resetRequest: null });
+  },
+  clearRestartSuccess: () => {
+    set({ showRestartSuccess: false });
   },
 }));

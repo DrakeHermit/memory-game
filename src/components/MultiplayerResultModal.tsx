@@ -1,6 +1,7 @@
 import type { Player } from "../types/game";
 import { useSocketStore } from "../store/socketStore";
 import { useNavigate } from "react-router-dom";
+
 const MultiplayerResultModal = ({
   playerName,
   players,
@@ -8,11 +9,48 @@ const MultiplayerResultModal = ({
   playerName: string;
   players: Player[];
 }) => {
-  const { winner, resetGame, gameState } = useSocketStore();
+  const {
+    winner,
+    resetGame,
+    gameState,
+    requestReset,
+    voteReset,
+    resetRequest,
+    playerId,
+  } = useSocketStore();
   const roomId = gameState?.roomId || "";
   const navigate = useNavigate();
 
   const maxPairs = Math.max(...players.map((p) => p.pairsFound));
+
+  const isResetRequested = resetRequest?.requested;
+  const isResetDisabled = resetRequest?.isDisabled || gameState?.resetUsed;
+  const votes = resetRequest?.votes || {};
+  const requestedBy = resetRequest?.requestedBy;
+  const isRequester = requestedBy?.id === playerId;
+  const hasVoted = votes[playerId] !== undefined;
+
+  const totalPlayers = players.length;
+  const votedCount = Object.keys(votes).length;
+  const acceptedCount = Object.values(votes).filter((v) => v === true).length;
+
+  const handleRequestReset = () => {
+    if (roomId && !isResetDisabled) {
+      requestReset(roomId);
+    }
+  };
+
+  const handleAcceptReset = () => {
+    if (roomId) {
+      voteReset(roomId, true);
+    }
+  };
+
+  const handleDeclineReset = () => {
+    if (roomId) {
+      voteReset(roomId, false);
+    }
+  };
 
   const isHighlighted = (player: Player) => {
     if (gameState?.isTie) {
@@ -56,12 +94,90 @@ const MultiplayerResultModal = ({
             </div>
           ))}
         </div>
+        <div className="mt-[32px] md:mt-[40px]">
+          {isResetRequested ? (
+            <div className="bg-blue-50 rounded-lg p-4">
+              <p className="text-blue-800 text-[14px] md:text-[16px] font-bold mb-3">
+                {isRequester ? "You" : requestedBy?.name} requested a restart
+              </p>
+
+              <div className="mb-4">
+                <p className="text-blue-600 text-[12px] md:text-[14px] font-bold mb-2">
+                  Votes: {acceptedCount} accepted / {votedCount} of{" "}
+                  {totalPlayers} voted
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {players.map((player) => {
+                    const vote = votes[player.id];
+                    const hasPlayerVoted = vote !== undefined;
+                    return (
+                      <span
+                        key={player.id}
+                        className={`px-3 py-1 rounded-full text-[11px] md:text-[13px] font-bold ${
+                          hasPlayerVoted
+                            ? vote
+                              ? "bg-green-500 text-white"
+                              : "bg-red-500 text-white"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {player.name}
+                        {hasPlayerVoted ? (vote ? " ✓" : " ✗") : " ..."}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {isRequester ? (
+                <p className="text-blue-600 text-[12px] md:text-[14px] font-bold">
+                  Waiting for other players...
+                </p>
+              ) : hasVoted ? (
+                <p className="text-blue-600 text-[12px] md:text-[14px] font-bold">
+                  Waiting for other players...
+                </p>
+              ) : (
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={handleAcceptReset}
+                    className="bg-orange-400 text-[14px] md:text-[16px] text-white rounded-full py-[10px] px-[20px] font-bold cursor-pointer hover:bg-orange-300 transition-colors"
+                    type="button"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={handleDeclineReset}
+                    className="bg-blue-200 text-[14px] md:text-[16px] text-blue-800 rounded-full py-[10px] px-[20px] font-bold cursor-pointer hover:bg-blue-300 transition-colors"
+                    type="button"
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={handleRequestReset}
+              className={`text-[18px] self-center md:text-[20px] rounded-full w-full md:w-1/2 md:py-[13px] py-[12px] md:px-[28px] font-bold transition-colors ${
+                isResetDisabled
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-orange-400 text-white cursor-pointer hover:bg-orange-300"
+              }`}
+              disabled={isResetDisabled || !roomId}
+              type="button"
+            >
+              {isResetDisabled ? "Restart Unavailable" : "Restart Game"}
+            </button>
+          )}
+        </div>
+
         <button
           onClick={() => {
             resetGame(roomId);
             navigate("/");
           }}
-          className="bg-blue-100 text-[18px] mt-[56px] self-center md:text-[20px] rounded-full w-full md:w-1/2 md:py-[13px] py-[12px] md:px-[28px] text-blue-800 font-bold cursor-pointer"
+          className="bg-blue-100 text-[18px] mt-[16px] self-center md:text-[20px] rounded-full w-full md:w-1/2 md:py-[13px] py-[12px] md:px-[28px] text-blue-800 font-bold cursor-pointer hover:bg-blue-200 transition-colors"
           disabled={!roomId}
           type="button"
         >

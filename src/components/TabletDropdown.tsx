@@ -14,12 +14,15 @@ export const TabletDropdown = ({
   const navigate = useNavigate();
   const { resetGameState } = gameStateStore();
   const {
-    isRoomCreator,
-    resetGame,
     roomId,
     leaveRoom,
     pauseGame,
+    requestReset,
+    resetRequest,
+    gameState,
   } = useSocketStore();
+
+  const isResetDisabled = resetRequest?.isDisabled || gameState?.resetUsed;
 
   const handleSinglePlayerRestart = () => {
     resetGameState();
@@ -27,8 +30,8 @@ export const TabletDropdown = ({
   };
 
   const handleMultiplayerRestart = () => {
-    if (isRoomCreator && roomId) {
-      resetGame(roomId);
+    if (roomId && !isResetDisabled) {
+      requestReset(roomId);
     }
     onClose();
   };
@@ -73,14 +76,17 @@ export const TabletDropdown = ({
         )}
         {isMultiplayer && (
           <>
-            {isRoomCreator && (
-              <button
-                className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
-                onClick={handleMultiplayerRestart}
-              >
-                Restart
-              </button>
-            )}
+            <button
+              className={`w-full text-center px-4 py-3 text-[16px] font-bold transition-colors ${
+                isResetDisabled
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-800 hover:bg-orange-400 hover:text-white cursor-pointer"
+              }`}
+              onClick={handleMultiplayerRestart}
+              disabled={isResetDisabled}
+            >
+              Restart Game
+            </button>
             <button
               className="w-full text-center px-4 py-3 text-[16px] text-blue-800 font-bold hover:bg-orange-400 hover:text-white transition-colors cursor-pointer"
               type="button"

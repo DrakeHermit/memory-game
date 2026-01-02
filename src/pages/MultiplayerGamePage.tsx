@@ -5,6 +5,8 @@ import { MultiplayerGameBoard } from "../components/MultiplayerGameBoard";
 import MultiplayerResultModal from "../components/MultiplayerResultModal";
 import PausedGameModal from "../components/PausedGameModal";
 import PlayerLeftModal from "../components/PlayerLeftModal";
+import ResetRequestModal from "../components/ResetRequestModal";
+import RestartSuccessModal from "../components/RestartSuccessModal";
 import { useGameSocketEffects } from "../hooks/useLobbyEffects";
 
 interface gridClasses {
@@ -12,10 +14,17 @@ interface gridClasses {
 }
 
 export const MultiplayerGamePage = () => {
-  const { players, gameState, playerLeftInfo } = useSocketStore();
+  const {
+    players,
+    gameState,
+    playerLeftInfo,
+    resetRequest,
+    showRestartSuccess,
+  } = useSocketStore();
   useGameSocketEffects();
 
   const winner = gameState?.winner;
+  const showResetModal = resetRequest?.requested && !gameState?.gameOver;
 
   const size = gameState?.gridSize || 4;
   const coins = gameState?.coins || [];
@@ -29,6 +38,8 @@ export const MultiplayerGamePage = () => {
     <>
       {playerLeftInfo?.playerLeftDuringGame && <PlayerLeftModal />}
       {gameState?.gamePaused && <PausedGameModal />}
+      {showResetModal && <ResetRequestModal />}
+      {showRestartSuccess && <RestartSuccessModal />}
       {gameState?.gameOver && (
         <MultiplayerResultModal
           playerName={winner?.name || ""}

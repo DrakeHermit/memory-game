@@ -12,15 +12,18 @@ interface NavBarProps {
 export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
   const { resetGameState } = GameStateStore();
   const {
-    isRoomCreator,
-    resetGame,
     roomId,
     pauseGame,
     leaveRoom,
+    requestReset,
+    resetRequest,
+    gameState,
   } = useSocketStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTabletDropdownOpen, setIsTabletDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  const isResetDisabled = resetRequest?.isDisabled || gameState?.resetUsed;
 
   const handleLeaveGame = () => {
     leaveRoom(roomId);
@@ -34,8 +37,8 @@ export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
   };
 
   const handleMultiplayerRestart = () => {
-    if (isRoomCreator && roomId) {
-      resetGame(roomId);
+    if (roomId && !isResetDisabled) {
+      requestReset(roomId);
     }
   };
 
@@ -119,25 +122,28 @@ export const NavBar = ({ isMultiplayer = false }: NavBarProps) => {
         )}
         {isMultiplayer && (
           <div className="hidden lg:flex gap-200 text-[20px]">
-            {isRoomCreator && (
-              <button
-                onClick={handleMultiplayerRestart}
-                className="bg-orange-400 rounded-full py-[13px] px-[28px] text-white font-bold cursor-pointer"
-                type="button"
-              >
-                Restart
-              </button>
-            )}
+            <button
+              onClick={handleMultiplayerRestart}
+              className={`rounded-full py-[13px] px-[28px] font-bold transition-colors ${
+                isResetDisabled
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-orange-400 text-white cursor-pointer hover:bg-orange-300"
+              }`}
+              type="button"
+              disabled={isResetDisabled}
+            >
+              Restart Game
+            </button>
             <button
               onClick={handlePauseGame}
-              className="bg-blue-100 rounded-full py-[13px] px-[28px] text-blue-800 font-bold cursor-pointer"
+              className="bg-blue-100 rounded-full py-[13px] px-[28px] text-blue-800 font-bold cursor-pointer hover:bg-blue-200 transition-colors"
               type="button"
             >
               Pause Game
             </button>
             <button
               onClick={handleLeaveGame}
-              className="bg-blue-100 rounded-full py-[13px] px-[28px] text-blue-800 font-bold cursor-pointer"
+              className="bg-blue-100 rounded-full py-[13px] px-[28px] text-blue-800 font-bold cursor-pointer hover:bg-blue-200 transition-colors"
               type="button"
             >
               Leave Game

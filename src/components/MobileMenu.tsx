@@ -14,12 +14,15 @@ export const MobileMenu = ({
   const navigate = useNavigate();
   const { resetGameState } = gameStateStore();
   const {
-    isRoomCreator,
-    resetGame,
     roomId,
     leaveRoom,
     pauseGame,
+    requestReset,
+    resetRequest,
+    gameState,
   } = useSocketStore();
+
+  const isResetDisabled = resetRequest?.isDisabled || gameState?.resetUsed;
 
   const handleSinglePlayerRestart = () => {
     resetGameState();
@@ -27,8 +30,8 @@ export const MobileMenu = ({
   };
 
   const handleMultiplayerRestart = () => {
-    if (isRoomCreator && roomId) {
-      resetGame(roomId);
+    if (roomId && !isResetDisabled) {
+      requestReset(roomId);
     }
     onClose();
   };
@@ -72,14 +75,17 @@ export const MobileMenu = ({
         )}
         {isMultiplayer && (
           <>
-            {isRoomCreator && (
-              <button
-                className="bg-orange-400 text-[16px] text-white w-full font-bold py-[12px] mb-3 rounded-full cursor-pointer"
-                onClick={handleMultiplayerRestart}
-              >
-                Restart
-              </button>
-            )}
+            <button
+              className={`text-[16px] w-full font-bold py-[12px] mb-3 rounded-full transition-colors ${
+                isResetDisabled
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-orange-400 text-white cursor-pointer"
+              }`}
+              onClick={handleMultiplayerRestart}
+              disabled={isResetDisabled}
+            >
+              Restart Game
+            </button>
             <button
               className="bg-blue-100 text-[16px] rounded-full w-full py-[12px] mb-3 text-blue-800 font-bold cursor-pointer"
               type="button"
